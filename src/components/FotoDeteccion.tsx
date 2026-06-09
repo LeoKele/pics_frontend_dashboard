@@ -14,7 +14,7 @@ export default function FotoDeteccion({ falla, videoSeleccionado, onAuditoriaCom
   const [imgDims, setImgDims] = useState({ w: 0, h: 0 });
   const [ubicacion, setUbicacion] = useState<string>("Consultando GPS...");
   const [zoomOrigin, setZoomOrigin] = useState("50% 50%");
-  const API_URL = process.env.NEXT_PUBLIC_API_URL !== undefined ? process.env.NEXT_PUBLIC_API_URL : "http://localhost:8000";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://34.63.158.31:8000";
 
   useEffect(() => {
     setImgDims({ w: 0, h: 0 });
@@ -175,9 +175,10 @@ export default function FotoDeteccion({ falla, videoSeleccionado, onAuditoriaCom
     const y = ((e.clientY - top) / height) * 100;
     setZoomOrigin(`${x}% ${y}%`);
   };
-  const MINIO_URL = process.env.NEXT_PUBLIC_MINIO_URL || "http://localhost:9000";
-  const urlImagen = `${MINIO_URL}/detecciones/${falla.frame_minio_path}`;
-
+  const MINIO_URL = process.env.NEXT_PUBLIC_MINIO_URL || "http://34.63.158.31:9000";
+  const rutaSegura = encodeURI(falla.frame_minio_path);
+  const urlImagen = `${MINIO_URL}/detecciones/${rutaSegura}`;
+  
   return (
     <div className="flex flex-col h-full overflow-y-auto pr-2 custom-scrollbar">
       {/* IMAGEN CON CAJA Y EFECTO LUPA INTELIGENTE */}
