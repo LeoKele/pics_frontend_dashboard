@@ -175,15 +175,10 @@ export default function FotoDeteccion({ falla, videoSeleccionado, onAuditoriaCom
     const y = ((e.clientY - top) / height) * 100;
     setZoomOrigin(`${x}% ${y}%`);
   };
-// 1. Usamos la variable de tu compañero (que en Netlify será "/minio" y en local "http://localhost:9000")
   const MINIO_URL = process.env.NEXT_PUBLIC_MINIO_URL || "http://localhost:9000";
-  
-  // 2. MAGIA PURA: Cortamos la ruta por las barras, codificamos cada pedacito (los espacios) y lo volvemos a unir.
-  // Esto transforma "video 3/foto.jpg" en "video%203/foto.jpg" sin romper las barras separadoras.
   const rutaSegura = falla.frame_minio_path.split('/').map(parte => encodeURIComponent(parte)).join('/');
-  
-  // 3. Armamos la URL final
   const urlImagen = `${MINIO_URL}/detecciones/${rutaSegura}`;
+
   return (
     <div className="flex flex-col h-full overflow-y-auto pr-2 custom-scrollbar">
       {/* IMAGEN CON CAJA Y EFECTO LUPA INTELIGENTE */}
