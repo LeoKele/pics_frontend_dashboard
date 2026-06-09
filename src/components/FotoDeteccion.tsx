@@ -175,6 +175,9 @@ export default function FotoDeteccion({ falla, videoSeleccionado, onAuditoriaCom
     const y = ((e.clientY - top) / height) * 100;
     setZoomOrigin(`${x}% ${y}%`);
   };
+
+  // ESTAS SON LAS MODIFICACIONES LEO QUE NO SE ACTUALIZAN EN NETLIFY! HAY Q VER Q ONDA PERO SEGUN GEMINI YA LEVANTA CONE STO
+
   // 1. Tu URL de MinIO original (dejala apuntando a tu variable o localhost)
   const MINIO_URL = process.env.NEXT_PUBLIC_MINIO_URL || "http://localhost:9000";
   
