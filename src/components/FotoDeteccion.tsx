@@ -179,7 +179,7 @@ export default function FotoDeteccion({ falla, videoSeleccionado, onAuditoriaCom
   const MINIO_URL = process.env.NEXT_PUBLIC_MINIO_URL || "http://localhost:9000";
   
   // 2. ¡EL DETALLE FINAL! Reemplazamos todos los espacios en blanco por guiones bajos
-  const rutaSegura = falla.frame_minio_path.replace(/ /g, "_");
+  const rutaSegura = (falla?.frame_minio_path || "").replace(/ /g, "_");
   
   // 3. Armamos la URL final
   const urlImagen = `${MINIO_URL}/detecciones/${rutaSegura}`;
