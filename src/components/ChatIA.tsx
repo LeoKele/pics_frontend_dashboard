@@ -3,7 +3,11 @@ import { useState, useRef, useEffect } from "react";
 import { marked } from "marked";
 
 export default function ChatIA({ videoSeleccionado, onVolverGlobal }) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const API_URL =
+    process.env.NEXT_PUBLIC_API_URL ||
+    (typeof window !== "undefined" && window.location.hostname !== "localhost"
+      ? ""
+      : "http://localhost:8000");
   const [mensajes, setMensajes] = useState([
     { rol: "ai", texto: "¡Hola! Soy tu asistente vial. Podés preguntarme por **todo el municipio de Moreno**, o seleccionar un video específico para enfocar el análisis." }
   ]);

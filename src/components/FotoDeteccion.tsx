@@ -14,7 +14,11 @@ export default function FotoDeteccion({ falla, videoSeleccionado, onAuditoriaCom
   const [imgDims, setImgDims] = useState({ w: 0, h: 0 });
   const [ubicacion, setUbicacion] = useState<string>("Consultando GPS...");
   const [zoomOrigin, setZoomOrigin] = useState("50% 50%");
-  const API_URL = process.env.NEXT_PUBLIC_API_URL !== undefined ? process.env.NEXT_PUBLIC_API_URL : "http://localhost:8000";
+  const API_URL =
+    process.env.NEXT_PUBLIC_API_URL ||
+    (typeof window !== "undefined" && window.location.hostname !== "localhost"
+      ? ""
+      : "http://localhost:8000");
 
   useEffect(() => {
     setImgDims({ w: 0, h: 0 });
@@ -176,10 +180,12 @@ export default function FotoDeteccion({ falla, videoSeleccionado, onAuditoriaCom
     setZoomOrigin(`${x}% ${y}%`);
   };
 
-  // ESTAS SON LAS MODIFICACIONES LEO QUE NO SE ACTUALIZAN EN NETLIFY! HAY Q VER Q ONDA PERO SEGUN GEMINI YA LEVANTA CONE STO
-
-  // 1. Tu URL de MinIO original (dejala apuntando a tu variable o localhost)
-  const MINIO_URL = process.env.NEXT_PUBLIC_MINIO_URL || "http://localhost:9000";
+  // 1. Tu URL de MinIO original (apuntando a proxy o localhost)
+  const MINIO_URL =
+    process.env.NEXT_PUBLIC_MINIO_URL ||
+    (typeof window !== "undefined" && window.location.hostname !== "localhost"
+      ? "/minio"
+      : "http://localhost:9000");
   
   // 2. ¡EL DETALLE FINAL! Reemplazamos todos los espacios en blanco por guiones bajos
   const rutaSegura = (falla?.frame_minio_path || "").replace(/ /g, "_");
