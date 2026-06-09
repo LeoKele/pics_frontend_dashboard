@@ -168,6 +168,7 @@ export default function FotoDeteccion({ falla, videoSeleccionado, onAuditoriaCom
       };
     }
   } catch (e) { console.warn("Error calculando BBox", e); }
+  
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!e.currentTarget) return;
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
@@ -175,10 +176,14 @@ export default function FotoDeteccion({ falla, videoSeleccionado, onAuditoriaCom
     const y = ((e.clientY - top) / height) * 100;
     setZoomOrigin(`${x}% ${y}%`);
   };
+
+  // --- ACÁ ESTÁ LA MAGIA CORREGIDA ---
+  // Cambiamos el localhost por la IP de producción y aplicamos encodeURI a la ruta
   const MINIO_URL = process.env.NEXT_PUBLIC_MINIO_URL || "http://34.63.158.31:9000";
   const rutaSegura = encodeURI(falla.frame_minio_path);
   const urlImagen = `${MINIO_URL}/detecciones/${rutaSegura}`;
-  
+  // ------------------------------------
+
   return (
     <div className="flex flex-col h-full overflow-y-auto pr-2 custom-scrollbar">
       {/* IMAGEN CON CAJA Y EFECTO LUPA INTELIGENTE */}
