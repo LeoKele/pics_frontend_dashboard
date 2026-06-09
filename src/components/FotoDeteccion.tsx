@@ -175,8 +175,13 @@ export default function FotoDeteccion({ falla, videoSeleccionado, onAuditoriaCom
     const y = ((e.clientY - top) / height) * 100;
     setZoomOrigin(`${x}% ${y}%`);
   };
-  const MINIO_URL = process.env.NEXT_PUBLIC_MINIO_URL || "http://localhost:9000";
+  // Apuntamos directo a nuestro nuevo túnel interno
+  const MINIO_URL = "/minio";
+  
+  // Limpiamos los espacios por las dudas
   const rutaSegura = falla.frame_minio_path.split('/').map(parte => encodeURIComponent(parte)).join('/');
+  
+  // Armamos la URL final
   const urlImagen = `${MINIO_URL}/detecciones/${rutaSegura}`;
 
   return (
