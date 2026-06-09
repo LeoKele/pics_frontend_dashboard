@@ -179,8 +179,13 @@ export default function FotoDeteccion({ falla, videoSeleccionado, onAuditoriaCom
 
   // --- ACÁ ESTÁ LA MAGIA CORREGIDA ---
   // Cambiamos el localhost por la IP de producción y aplicamos encodeURI a la ruta
-  const MINIO_URL = process.env.NEXT_PUBLIC_MINIO_URL || "http://34.63.158.31:9000";
-  const rutaSegura = encodeURI(falla.frame_minio_path); // ¡Clave para los espacios!
+// Dejá tu lógica de variables exactamente como la tenías:
+  const MINIO_URL = process.env.NEXT_PUBLIC_MINIO_URL || "http://localhost:9000";
+  
+  // ¡ACÁ ESTÁ EL TRUCO! encodeURI reemplaza los espacios por %20 sin romper las barras /
+  const rutaSegura = encodeURI(falla.frame_minio_path);
+  
+  // Usamos la ruta segura con los espacios corregidos
   const urlImagen = `${MINIO_URL}/detecciones/${rutaSegura}`;
   // ------------------------------------
 
