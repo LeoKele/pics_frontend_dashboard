@@ -14,7 +14,7 @@ export default function FotoDeteccion({ falla, videoSeleccionado, onAuditoriaCom
   const [imgDims, setImgDims] = useState({ w: 0, h: 0 });
   const [ubicacion, setUbicacion] = useState<string>("Consultando GPS...");
   const [zoomOrigin, setZoomOrigin] = useState("50% 50%");
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://34.63.158.31:8000";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL !== undefined ? process.env.NEXT_PUBLIC_API_URL : "http://localhost:8000";
 
   useEffect(() => {
     setImgDims({ w: 0, h: 0 });
@@ -168,7 +168,6 @@ export default function FotoDeteccion({ falla, videoSeleccionado, onAuditoriaCom
       };
     }
   } catch (e) { console.warn("Error calculando BBox", e); }
-  
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!e.currentTarget) return;
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
@@ -176,18 +175,8 @@ export default function FotoDeteccion({ falla, videoSeleccionado, onAuditoriaCom
     const y = ((e.clientY - top) / height) * 100;
     setZoomOrigin(`${x}% ${y}%`);
   };
-
-  // --- ACÁ ESTÁ LA MAGIA CORREGIDA ---
-  // Cambiamos el localhost por la IP de producción y aplicamos encodeURI a la ruta
-// Dejá tu lógica de variables exactamente como la tenías:
-  const MINIO_URL = process.env.NEXT_PUBLIC_MINIO_URL || "http://localhost:9000";
-  
-  // ¡ACÁ ESTÁ EL TRUCO! encodeURI reemplaza los espacios por %20 sin romper las barras /
-  const rutaSegura = encodeURI(falla.frame_minio_path);
-  
-  // Usamos la ruta segura con los espacios corregidos
-  const urlImagen = `${MINIO_URL}/detecciones/${rutaSegura}`;
-  // ------------------------------------
+  const MINIO_URL = process.env.NEXT_PUBLIC_MINIO_URL !== undefined ? process.env.NEXT_PUBLIC_MINIO_URL : "http://localhost:9001";
+  const urlImagen = `${MINIO_URL}/detecciones/${falla.frame_minio_path}`;
 
   return (
     <div className="flex flex-col h-full overflow-y-auto pr-2 custom-scrollbar">
