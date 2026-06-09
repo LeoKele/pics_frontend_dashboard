@@ -18,7 +18,7 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ rol, onLogout }: DashboardProps) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL !== undefined ? process.env.NEXT_PUBLIC_API_URL : "http://localhost:8000";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   const GRAFANA_URL = process.env.NEXT_PUBLIC_GRAFANA_URL || "http://localhost:3000";
 
   const [stats, setStats] = useState({ baches: 0, videos: 0 });
