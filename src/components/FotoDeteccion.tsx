@@ -177,12 +177,11 @@ export default function FotoDeteccion({ falla, videoSeleccionado, onAuditoriaCom
   };
   // 1. Volvemos EXACTAMENTE a tu lógica original que funcionaba bárbaro
   const MINIO_URL = process.env.NEXT_PUBLIC_MINIO_URL !== undefined ? process.env.NEXT_PUBLIC_MINIO_URL : "http://localhost:9000";
-  
   // 2. Reemplazamos los espacios por %20 a mano para que el proxy de Netlify no explote
   const rutaSegura = falla.frame_minio_path.replace(/ /g, "%20");
-  
   // 3. Armamos la URL
-  const urlImagen = `${MINIO_URL}/detecciones/${rutaSegura}`;
+  const urlImagen = `http://35.194.31.183:9000/detecciones/${rutaSegura}`;
+
   return (
     <div className="flex flex-col h-full overflow-y-auto pr-2 custom-scrollbar">
       {/* IMAGEN CON CAJA Y EFECTO LUPA INTELIGENTE */}
