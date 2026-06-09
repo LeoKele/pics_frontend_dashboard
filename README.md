@@ -71,4 +71,5 @@ URL de Producción: https://pics-dashboard.netlify.app/
 El despliegue está configurado para conectarse de forma transparente con nuestra infraestructura en Google Cloud, resolviendo los problemas nativos de seguridad del navegador (bloqueos por Mixed Content al mezclar https:// con http://) mediante un sistema de proxy interno.
 
 Para asegurar la comunicación entre el frontend seguro en Netlify y nuestro backend (FastAPI) y servidor de almacenamiento (MinIO), utilizamos el motor de redirecciones nativo de Netlify. `(_redirects)` en la carpeta /public.
+
 ---
