@@ -5,6 +5,7 @@ import { Falla } from "../types";
 import FotoDeteccion from "./FotoDeteccion";
 import ChatIA from "./ChatIA";
 import ModalReporte from "./ModalReporte";
+import ModalEstadisticas from "./ModalEstadisticas";
 import Link from "next/link";
 
 const MapaVial = dynamic(() => import("./MapaVial"), {
@@ -35,6 +36,7 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
   const [trayectorias, setTrayectorias] = useState({});
   const [estadoSistema, setEstadoSistema] = useState("LOADING");
   const [estadoReporte, setEstadoReporte] = useState<"idle" | "generando" | "error" | "listo">("idle");
+  const [modalEstadisticasAbierto, setModalEstadisticasAbierto] = useState(false);
 
   // Configuración del umbral de confianza interactivo
   const [umbralConfianza, setUmbralConfianza] = useState<number>(() => {
@@ -155,6 +157,13 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
               <i className="fa-solid fa-terminal text-[#00aaff] drop-shadow-[0_0_5px_rgba(0,170,255,0.4)]"></i> Ver Logs
             </a>
           )}
+
+          <button
+            onClick={() => setModalEstadisticasAbierto(true)}
+            className="bg-[#121212] text-[#e0e0e0] border border-[#333] rounded-full px-3 py-1.5 text-xs sm:text-sm font-semibold flex items-center gap-1.5 hover:bg-[#1a1a1a] hover:border-[#00aaff]/50 hover:text-white transition-all cursor-pointer shadow-[0_0_10px_rgba(0,0,0,0.5)]"
+          >
+            <i className="fa-solid fa-chart-simple text-[#00aaff] drop-shadow-[0_0_5px_rgba(0,170,255,0.4)]"></i> Métricas
+          </button>
 
           <Link
             href="/status"
@@ -396,6 +405,12 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
         detecciones={deteccionesTotales}
         estadoReporte={estadoReporte}
         setEstadoReporte={setEstadoReporte}
+      />
+
+      <ModalEstadisticas
+        isOpen={modalEstadisticasAbierto}
+        onClose={() => setModalEstadisticasAbierto(false)}
+        detecciones={deteccionesTotales}
       />
     </div>
   );
