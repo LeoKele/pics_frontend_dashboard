@@ -138,10 +138,10 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-black text-[#e0e0e0] font-sans">
+    <div className="flex flex-col h-screen overflow-hidden bg-[#030712] text-[#e0e0e0] font-sans">
 
       {/* HEADER */}
-      <header className="bg-[#0a0a0a]/90 backdrop-blur-md px-4 flex justify-between items-center border-b border-[#222] h-[55px] shadow-[0_4px_20px_rgba(0,170,255,0.05)] z-10">
+      <header className="bg-[#080d1a]/85 backdrop-blur-md px-4 flex justify-between items-center border-b border-white/5 h-[55px] shadow-[0_4px_20px_rgba(0,170,255,0.03)] z-10">
         <h1 className="text-lg sm:text-xl text-white flex items-center gap-2 font-bold tracking-wide">
           <i className="fa-solid fa-map-location-dot text-[#00aaff] drop-shadow-[0_0_8px_rgba(0,170,255,0.6)]"></i> PICS Moreno
         </h1>
@@ -152,7 +152,7 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
               href={`${GRAFANA_URL}/explore?left=%5B%22now-1h%22%2C%22now%22%2C%22Loki%22%2C%7B%22expr%22%3A%22%7Bservice%3D%5C%22api_fastapi%5C%22%7D%22%7D%5D`}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-[#121212] text-[#e0e0e0] border border-[#333] rounded-full px-3 py-1.5 text-xs sm:text-sm font-semibold flex items-center gap-1.5 hover:bg-[#1a1a1a] hover:border-[#00aaff]/50 hover:text-white transition-all no-underline shadow-[0_0_10px_rgba(0,0,0,0.5)]"
+              className="bg-[#0d1527]/60 text-[#e0e0e0] border border-white/5 rounded-full px-3 py-1.5 text-xs sm:text-sm font-semibold flex items-center gap-1.5 hover:bg-[#111c33]/70 hover:border-[#00aaff]/40 hover:text-white transition-all duration-300 no-underline shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:shadow-[0_0_8px_rgba(0,170,255,0.15)]"
             >
               <i className="fa-solid fa-terminal text-[#00aaff] drop-shadow-[0_0_5px_rgba(0,170,255,0.4)]"></i> Ver Logs
             </a>
@@ -160,14 +160,14 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
 
           <button
             onClick={() => setModalEstadisticasAbierto(true)}
-            className="bg-[#121212] text-[#e0e0e0] border border-[#333] rounded-full px-3 py-1.5 text-xs sm:text-sm font-semibold flex items-center gap-1.5 hover:bg-[#1a1a1a] hover:border-[#00aaff]/50 hover:text-white transition-all cursor-pointer shadow-[0_0_10px_rgba(0,0,0,0.5)]"
+            className="bg-[#0d1527]/60 text-[#e0e0e0] border border-white/5 rounded-full px-3 py-1.5 text-xs sm:text-sm font-semibold flex items-center gap-1.5 hover:bg-[#111c33]/70 hover:border-[#00aaff]/40 hover:text-white transition-all duration-300 cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:shadow-[0_0_8px_rgba(0,170,255,0.15)]"
           >
             <i className="fa-solid fa-chart-simple text-[#00aaff] drop-shadow-[0_0_5px_rgba(0,170,255,0.4)]"></i> Métricas
           </button>
 
           <Link
             href="/status"
-            className="bg-[#121212] px-3.5 py-1.5 rounded-full border border-[#333] flex items-center gap-1.5 text-xs sm:text-sm font-bold cursor-pointer hover:bg-[#1a1a1a] hover:border-[#00aaff]/50 transition-all no-underline text-white shadow-[0_0_10px_rgba(0,0,0,0.5)]"
+            className="bg-[#0d1527]/60 px-3.5 py-1.5 rounded-full border border-white/5 flex items-center gap-1.5 text-xs sm:text-sm font-bold cursor-pointer hover:bg-[#111c33]/70 hover:border-[#00aaff]/40 hover:text-white transition-all duration-300 no-underline shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:shadow-[0_0_8px_rgba(0,170,255,0.15)]"
           >
             <div className={`w-3 h-3 rounded-full bg-[#00aaff] shadow-[0_0_8px_#00aaff] ${estadoSistema === 'LOADING' ? 'animate-pulse' : ''}`}></div>
             <span>
@@ -177,10 +177,10 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
             </span>
           </Link>
 
-          <div className="bg-[#121212] px-3.5 py-1.5 rounded-full border border-[#333] flex items-center gap-1.5 text-xs sm:text-sm shadow-[0_0_10px_rgba(0,0,0,0.5)]">
+          <div className="bg-[#0d1527]/60 px-3.5 py-1.5 rounded-full border border-white/5 flex items-center gap-1.5 text-xs sm:text-sm shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
             <i className="fa-solid fa-user-tie text-[#00aaff]"></i>
             <span>{rol === 'admin' ? 'Administrador' : 'Operador'}</span>
-            <button onClick={onLogout} className="text-gray-400 hover:text-[#ff3d3d] ml-2 transition-colors text-sm" title="Cerrar Sesión">
+            <button onClick={onLogout} className="text-gray-400 hover:text-[#ff3d3d] ml-2 transition-colors text-sm cursor-pointer" title="Cerrar Sesión">
               <i className="fa-solid fa-right-from-bracket"></i>
             </button>
           </div>
@@ -190,19 +190,19 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
       {/* LAYOUT PRINCIPAL */}
       <div className="flex flex-1 overflow-hidden relative z-0">
 
-        <aside className="w-[260px] bg-[#0a0a0a]/95 backdrop-blur-md p-3.5 border-r border-[#222] flex flex-col gap-3.5 overflow-y-auto z-10 shadow-[4px_0_15px_rgba(0,0,0,0.5)]">
+        <aside className="w-[260px] bg-[#060a13]/70 backdrop-blur-lg p-3.5 border-r border-white/5 flex flex-col gap-3.5 overflow-y-auto z-10 shadow-[4px_0_30px_rgba(0,0,0,0.4)]">
 
-          <div className="bg-[#121212] rounded-xl p-2.5 text-center border border-[#222] hover:border-[#00aaff]/30 transition-colors">
+          <div className="bg-[#0d1527]/40 backdrop-blur-sm rounded-xl p-2.5 text-center border border-white/5 hover:border-[#00aaff]/40 hover:-translate-y-[1px] hover:shadow-[0_4px_12px_rgba(0,170,255,0.08)] transition-all duration-300">
             <div className="text-2xl font-bold text-[#00aaff] drop-shadow-[0_0_8px_rgba(0,170,255,0.6)]">{stats.baches}</div>
             <div className="text-[0.65rem] text-gray-400 uppercase tracking-widest mt-1 font-semibold">Detecciones</div>
           </div>
-          <div className="bg-[#121212] rounded-xl p-2.5 text-center border border-[#222] hover:border-[#00aaff]/30 transition-colors">
+          <div className="bg-[#0d1527]/40 backdrop-blur-sm rounded-xl p-2.5 text-center border border-white/5 hover:border-[#00aaff]/40 hover:-translate-y-[1px] hover:shadow-[0_4px_12px_rgba(0,170,255,0.08)] transition-all duration-300">
             <div className="text-2xl font-bold text-[#00aaff] drop-shadow-[0_0_8px_rgba(0,170,255,0.6)]">{stats.videos}</div>
             <div className="text-[0.65rem] text-gray-400 uppercase tracking-widest mt-1 font-semibold">Videos Subidos</div>
           </div>
 
           {/* CONTROL DE UMBRAL DE CONFIANZA INTERACTIVO */}
-          <div className="bg-[#121212] rounded-xl p-3 border border-[#222] hover:border-[#00aaff]/30 transition-colors flex flex-col gap-2">
+          <div className="bg-[#0d1527]/40 backdrop-blur-sm rounded-xl p-3 border border-white/5 hover:border-[#00aaff]/40 hover:-translate-y-[1px] hover:shadow-[0_4px_12px_rgba(0,170,255,0.08)] transition-all duration-300 flex flex-col gap-2">
             <div className="flex justify-between items-center text-xs font-bold text-gray-300">
               <span><i className="fa-solid fa-sliders text-[#00aaff] mr-1.5"></i> Umbral Confianza</span>
               <span className="text-[#00aaff] bg-[#00aaff]/10 px-1.5 py-0.5 rounded border border-[#00aaff]/30">{(umbralConfianza * 100).toFixed(0)}%</span>
@@ -233,8 +233,8 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
                   onClick={() => {
                     setVideoSeleccionado(vid.id);
                     setFallaSeleccionada(null);}}
-                  className={`bg-[#121212] rounded-lg p-2 border-l-[4px] cursor-pointer transition-all duration-200 text-xs sm:text-sm flex flex-col gap-1 shadow-sm
-                    ${videoSeleccionado === vid.id ? 'border-[#00aaff] bg-[#1a1a1a] shadow-[0_0_10px_rgba(0,170,255,0.15)]' : 'border-transparent hover:border-[#00aaff]/50 hover:bg-[#1a1a1a]'}`}
+                  className={`bg-[#0d1527]/30 backdrop-blur-sm rounded-lg p-2 border-l-[4px] cursor-pointer hover:-translate-y-[1px] transition-all duration-300 text-xs sm:text-sm flex flex-col gap-1 shadow-sm
+                    ${videoSeleccionado === vid.id ? 'border-[#00aaff] bg-[#111c33]/55 shadow-[0_0_12px_rgba(0,170,255,0.15)]' : 'border-transparent hover:border-[#00aaff]/30 hover:bg-[#0d1527]/50'}`}
                 >
                   <div className="font-bold text-gray-200 flex justify-between items-center">
                     <span><i className="fa-solid fa-film text-[#00aaff] opacity-80 mr-2"></i> Video #{vid.id}</span>
@@ -276,7 +276,7 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
               className={`w-full p-2.5 rounded-lg font-bold text-xs sm:text-sm flex justify-center items-center gap-1.5 transition-all duration-300 ${
                 listaVideos.length > 0
                   ? 'bg-gradient-to-r from-[#00aaff] to-[#0077cc] text-white shadow-[0_0_10px_rgba(0,170,255,0.3)] hover:shadow-[0_0_15px_rgba(0,170,255,0.5)] border-none cursor-pointer'
-                  : 'bg-[#121212] text-gray-600 border border-[#222] cursor-not-allowed'
+                  : 'bg-[#0d1527]/40 text-gray-600 border border-white/5 cursor-not-allowed'
               }`}
             >
               <i className="fa-solid fa-file-lines"></i> {videoSeleccionado ? `Ver Reporte (#${videoSeleccionado})` : 'Ver Reporte Consolidado'}
@@ -287,8 +287,8 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
               disabled={listaVideos.length === 0}
               className={`w-full border p-2.5 rounded-lg font-bold text-xs sm:text-sm flex justify-center items-center gap-1.5 transition-all duration-300 ${
                 listaVideos.length > 0
-                  ? 'bg-[#0a0a0a] border-[#00aaff] text-[#00aaff] shadow-[0_0_10px_rgba(0,170,255,0.2)] hover:bg-[#121212] hover:shadow-[0_0_15px_rgba(0,170,255,0.4)] cursor-pointer'
-                  : 'bg-[#0a0a0a] border-[#222] text-gray-600 cursor-not-allowed'
+                  ? 'bg-[#060a13]/70 border-[#00aaff] text-[#00aaff] shadow-[0_0_10px_rgba(0,170,255,0.2)] hover:bg-[#111c33]/50 hover:shadow-[0_0_15px_rgba(0,170,255,0.4)] cursor-pointer'
+                  : 'bg-[#0d1527]/30 border-white/5 text-gray-600 cursor-not-allowed'
               }`}
             >
               <i className="fa-solid fa-robot"></i> {videoSeleccionado ? 'Generar Reporte IA' : 'Generar Reporte Global IA'}
@@ -297,10 +297,10 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
         </aside>
 
         {/* CONTENIDO CENTRAL */}
-        <main className="flex-1 grid grid-cols-3 grid-rows-3 gap-5 p-5 bg-black">
+        <main className="flex-1 grid grid-cols-3 grid-rows-3 gap-5 p-5 bg-[#030712]">
 
            {/* MAPA */}
-           <div className="col-span-2 row-span-2 bg-[#0a0a0a] border border-[#222] hover:border-[#00aaff]/30 transition-colors rounded-xl flex items-center justify-center flex-col relative overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.6)]">
+           <div className="col-span-2 row-span-2 bg-[#080d1a]/55 backdrop-blur-md border border-white/5 hover:border-[#00aaff]/30 hover:shadow-[0_8px_30px_rgba(0,170,255,0.03)] transition-all duration-300 rounded-xl flex items-center justify-center flex-col relative overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
              <MapaVial
                detecciones={deteccionesFiltradas}
                trayectorias={trayectorias}
@@ -312,10 +312,10 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
            </div>
 
            {/* FOTO */}
-           <div className="col-span-1 row-span-2 bg-[#0a0a0a] border border-[#222] hover:border-[#00aaff]/30 transition-colors rounded-xl p-4 flex flex-col text-gray-300 overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.6)]">
-             <div className="font-bold text-[#00aaff] border-b border-[#222] text-base pb-2 mb-3 flex justify-between items-center drop-shadow-[0_0_5px_rgba(0,170,255,0.3)]">
+           <div className="col-span-1 row-span-2 bg-[#080d1a]/55 backdrop-blur-md border border-white/5 hover:border-[#00aaff]/30 hover:shadow-[0_8px_30px_rgba(0,170,255,0.03)] transition-all duration-300 rounded-xl p-4 flex flex-col text-gray-300 overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
+             <div className="font-bold text-[#00aaff] border-b border-white/5 text-base pb-2 mb-3 flex justify-between items-center drop-shadow-[0_0_5px_rgba(0,170,255,0.3)]">
                 <span><i className="fa-solid fa-magnifying-glass-location mr-2"></i> Inspección Técnica</span>
-                {videoSeleccionado && <span className="bg-[#121212] text-white text-xs px-2 py-1 rounded-md border border-[#333]">Video #{videoSeleccionado}</span>}
+                {videoSeleccionado && <span className="bg-[#111c33]/70 text-white text-xs px-2 py-1 rounded-md border border-white/10">Video #{videoSeleccionado}</span>}
              </div>
 
              <FotoDeteccion
@@ -329,15 +329,15 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
            </div>
 
            {/* KEDA */}
-           <div className="col-span-2 row-span-1 bg-[#0a0a0a] border border-[#222] hover:border-[#00aaff]/30 transition-colors rounded-xl p-4 flex flex-col text-gray-300 overflow-y-auto shadow-[0_8px_30px_rgb(0,0,0,0.6)] custom-scrollbar">
-             <div className="font-bold text-[#00aaff] border-b border-[#222] text-base pb-2 mb-3 flex items-center gap-1.5 drop-shadow-[0_0_5px_rgba(0,170,255,0.3)]">
+           <div className="col-span-2 row-span-1 bg-[#080d1a]/55 backdrop-blur-md border border-white/5 hover:border-[#00aaff]/30 hover:shadow-[0_8px_30px_rgba(0,170,255,0.03)] transition-all duration-300 rounded-xl p-4 flex flex-col text-gray-300 overflow-y-auto shadow-[0_8px_30px_rgba(0,0,0,0.5)] custom-scrollbar">
+             <div className="font-bold text-[#00aaff] border-b border-white/5 text-base pb-2 mb-3 flex items-center gap-1.5 drop-shadow-[0_0_5px_rgba(0,170,255,0.3)]">
                 <i className="fa-solid fa-stopwatch mr-1"></i> Estado del Sistema KEDA
              </div>
              <div className="flex flex-col gap-2">
                 {estadoReporte !== "idle" && (
                    <div 
                      onClick={() => { setMetodoModal("POST"); setModalAbierto(true); }}
-                     className="bg-[#121212] p-2 rounded-lg border border-[#00aaff]/30 flex justify-between items-center text-xs sm:text-sm shadow-sm hover:bg-[#1a1a1a] transition-colors cursor-pointer"
+                     className="bg-[#111c33]/40 p-2 rounded-lg border border-[#00aaff]/30 flex justify-between items-center text-xs sm:text-sm shadow-sm hover:bg-[#111c33]/70 hover:border-[#00aaff]/60 transition-all duration-300 cursor-pointer"
                    >
                      <strong className="text-gray-300">
                        <i className="fa-solid fa-robot text-[#00aaff]/70 mr-3"></i>
@@ -371,7 +371,7 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
                  )}
                 {listaVideos.length === 0 ? <p className="text-xs italic text-gray-600">En espera de procesamiento de video...</p> : (
                   listaVideos.map(vid => (
-                    <div key={`cola-${vid.id}`} className="bg-[#121212] p-2 rounded-lg border border-[#222] flex justify-between items-center text-xs sm:text-sm shadow-sm hover:bg-[#1a1a1a] transition-colors">
+                    <div key={`cola-${vid.id}`} className="bg-[#0d1527]/30 p-2 rounded-lg border border-white/5 flex justify-between items-center text-xs sm:text-sm shadow-sm hover:bg-[#111c33]/55 transition-colors">
                       <strong className="text-gray-300"><i className="fa-solid fa-film text-[#00aaff]/70 mr-3"></i>Video #{vid.id}</strong>
                       <span className={`font-bold tracking-wide ${
                         vid.estado === 'PROCESADO'
@@ -387,7 +387,7 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
            </div>
 
            {/* CHAT */}
-           <div className="col-span-1 row-span-1 shadow-[0_8px_30px_rgb(0,0,0,0.6)] rounded-xl transition-colors hover:border-[#00aaff]/30">
+           <div className="col-span-1 row-span-1 shadow-[0_8px_30px_rgba(0,0,0,0.5)] rounded-xl overflow-hidden">
              <ChatIA
                 videoSeleccionado={videoSeleccionado}
                 onVolverGlobal={volverGlobal}

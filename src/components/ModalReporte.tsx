@@ -310,7 +310,7 @@ export default function ModalReporte({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-[2000] flex justify-center items-center">
+    <div className="fixed inset-0 bg-[#030712]/75 backdrop-blur-md z-[2000] flex justify-center items-center">
       <style>{`
         @keyframes ia-loading { 0% { left: -30%; width: 30%; } 50% { width: 60%; } 100% { left: 100%; width: 30%; } }
 
@@ -319,33 +319,33 @@ export default function ModalReporte({
         }
 
         /* ESTILOS DE LETRA AJUSTADOS Y MÁS COMPACTOS */
-        .markdown-report h1 { color: #00aaff; font-size: 1.8rem; border-bottom: 1px solid #333; padding-bottom: 6px; margin: 18px 0 12px 0; text-shadow: 0 0 8px rgba(0,170,255,0.3); font-weight: bold; }
+        .markdown-report h1 { color: #00aaff; font-size: 1.8rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px; margin: 18px 0 12px 0; text-shadow: 0 0 8px rgba(0,170,255,0.3); font-weight: bold; }
         .markdown-report h2 { color: #00aaff; font-size: 1.3rem; margin: 18px 0 8px 0; font-weight: bold; }
         .markdown-report h3 { color: #00aaff; font-size: 1.1rem; margin: 14px 0 6px 0; font-weight: bold; }
         .markdown-report p { margin-bottom: 12px; font-size: 0.9rem; line-height: 1.6; }
         .markdown-report ul { margin-left: 20px; margin-bottom: 12px; list-style-type: disc; font-size: 0.9rem; line-height: 1.6; }
         .markdown-report li { margin-bottom: 6px; }
         .markdown-report strong { color: #ffffff; font-weight: 700; letter-spacing: 0.2px; }
-        .markdown-report table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.85rem; background: #0a0a0a; border: 1px solid #222; border-radius: 6px; overflow: hidden; }
-        .markdown-report th { background: #121212; color: #00aaff; padding: 8px 10px; text-align: left; font-weight: bold; border-bottom: 1px solid #222; }
-        .markdown-report td { padding: 8px 10px; border-bottom: 1px solid #111; color: #e0e0e0; }
-        .markdown-report tr:hover { background: #1a1a1a/30; }
+        .markdown-report table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.85rem; background: rgba(13,21,39,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; overflow: hidden; }
+        .markdown-report th { background: rgba(13,21,39,0.6); color: #00aaff; padding: 8px 10px; text-align: left; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .markdown-report td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.03); color: #e0e0e0; }
+        .markdown-report tr:hover { background: rgba(255,255,255,0.03); }
       `}</style>
 
-      <div className="bg-[#0a0a0a] border border-[#00aaff] rounded-xl w-[80%] max-w-[950px] max-h-[85vh] flex flex-col shadow-[0_10px_40px_rgba(0,170,255,0.15)] overflow-hidden">
+      <div className="bg-[#080d1a]/95 border border-white/5 rounded-2xl w-[80%] max-w-[950px] max-h-[85vh] flex flex-col shadow-[0_20px_50px_rgba(0,0,0,0.6)] overflow-hidden hover:border-[#00aaff]/20 transition-all duration-500">
 
         {/* HEADER MODAL */}
-        <div className="py-2.5 px-4 border-b border-[#222] flex justify-between items-center bg-[#121212] rounded-t-xl drop-shadow-[0_0_5px_rgba(0,170,255,0.2)] z-10">
-          <h2 className="text-base font-bold text-[#00aaff] flex items-center gap-2 drop-shadow-[0_0_8px_rgba(0,170,255,0.5)]">
+        <div className="py-3 px-5 border-b border-white/5 flex justify-between items-center bg-[#0d1527]/60 backdrop-blur-sm rounded-t-2xl z-10">
+          <h2 className="text-sm font-bold text-[#00aaff] flex items-center gap-2 drop-shadow-[0_0_8px_rgba(0,170,255,0.4)]">
             <i className="fa-solid fa-robot text-[1.1rem]"></i> Reporte de Inspección Inteligente
           </h2>
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMostrarHistorial(!mostrarHistorial)}
-              className={`px-3 py-1 rounded border text-xs font-semibold flex items-center gap-1.5 transition-all
+              className={`px-3 py-1 rounded-lg border text-xs font-semibold flex items-center gap-1.5 transition-all
                 ${mostrarHistorial 
                   ? 'bg-[#00aaff] text-black border-[#00aaff]' 
-                  : 'bg-transparent text-gray-400 border-[#333] hover:text-white hover:border-gray-500'
+                  : 'bg-transparent text-gray-400 border-white/10 hover:text-white hover:border-[#00aaff]/40'
                 }`}
               title="Ver reportes anteriores"
             >
@@ -357,7 +357,7 @@ export default function ModalReporte({
 
         {/* BARRA DE PROGRESO */}
         {paso === "reporte" && estado === "stream" && (
-          <div className="w-full h-1 bg-[#333] relative overflow-hidden">
+          <div className="w-full h-1 bg-white/5 relative overflow-hidden">
             <div className="absolute h-full bg-[#00aaff] shadow-[0_0_10px_#00aaff]" style={{ animation: 'ia-loading 1.5s infinite ease-in-out' }}></div>
           </div>
         )}
@@ -369,12 +369,10 @@ export default function ModalReporte({
 
           {/* BARRA LATERAL HISTORIAL */}
           {mostrarHistorial && (
-            <div className="w-[250px] bg-[#121212]/50 border-r border-[#222] flex flex-col overflow-y-auto custom-scrollbar p-3 gap-2">
-              <h3 className="text-xs text-[#00aaff] uppercase tracking-wider font-bold mb-2 flex items-center gap-1.5 border-b border-[#222] pb-1.5">
+            <div className="w-[250px] bg-[#060a13]/70 border-r border-white/5 flex flex-col overflow-y-auto custom-scrollbar p-3 gap-2">
+              <h3 className="text-xs text-[#00aaff] uppercase tracking-wider font-bold mb-2 flex items-center gap-1.5 border-b border-white/5 pb-1.5">
                 <i className="fa-solid fa-history"></i> Reportes Previos
               </h3>
-
-
 
               {historial.length === 0 ? (
                 <p className="text-xs text-gray-500 italic p-2">No hay reportes anteriores</p>
@@ -389,7 +387,7 @@ export default function ModalReporte({
                       className={`p-2.5 rounded-lg border text-xs cursor-pointer transition-all flex flex-col gap-1
                         ${esActual 
                           ? 'border-[#00aaff] bg-[#00aaff]/5 text-white shadow-[0_0_8px_rgba(0,170,255,0.05)]' 
-                          : 'border-[#222] bg-[#121212] text-gray-400 hover:border-gray-700 hover:text-white'
+                          : 'border-white/5 bg-[#0d1527]/40 text-gray-400 hover:border-[#00aaff]/40 hover:text-white'
                         }`}
                     >
                       <div className="font-bold flex justify-between items-center">
@@ -403,19 +401,19 @@ export default function ModalReporte({
                                 title: '¿Eliminar reporte?',
                                 text: `Se eliminará permanentemente el Reporte #${rep.id}.`,
                                 icon: 'warning',
-                                iconColor: '#ff3d3d',
+                                iconColor: '#00aaff',
                                 showCancelButton: true,
                                 confirmButtonText: 'Sí, eliminar',
                                 cancelButtonText: 'Cancelar',
-                                background: '#0a0a0a',
+                                background: '#080d1a',
                                 color: '#e0e0e0',
-                                confirmButtonColor: '#ff3d3d',
+                                confirmButtonColor: '#00aaff',
                                 cancelButtonColor: '#222',
                                 customClass: {
-                                  popup: 'border border-[#222] rounded-xl',
-                                  title: 'text-[#ff3d3d] font-bold text-lg',
+                                  popup: 'border border-white/5 rounded-2xl',
+                                  title: 'text-[#00aaff] font-bold text-lg',
                                   htmlContainer: 'text-gray-300 text-xs mt-2',
-                                  confirmButton: 'bg-[#ff3d3d] text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-[#ff6b6b] transition-all cursor-pointer mr-2',
+                                  confirmButton: 'bg-[#00aaff] text-black px-4 py-2 rounded-lg font-bold text-sm hover:bg-white transition-all cursor-pointer mr-2',
                                   cancelButton: 'bg-[#222] border border-[#333] text-gray-300 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-[#333] transition-all cursor-pointer'
                                 },
                                 buttonsStyling: false
@@ -440,12 +438,12 @@ export default function ModalReporte({
                                     text: 'El reporte fue eliminado correctamente de la base de datos.',
                                     icon: 'success',
                                     iconColor: '#00aaff',
-                                    background: '#0a0a0a',
+                                    background: '#080d1a',
                                     color: '#e0e0e0',
                                     confirmButtonText: 'Aceptar',
                                     confirmButtonColor: '#00aaff',
                                     customClass: {
-                                      popup: 'border border-[#222] rounded-xl',
+                                      popup: 'border border-white/5 rounded-2xl',
                                       title: 'text-[#00aaff] font-bold text-lg',
                                       htmlContainer: 'text-gray-300 text-xs mt-2',
                                       confirmButton: 'bg-[#00aaff] text-black px-4 py-2 rounded-lg font-bold text-sm hover:bg-white transition-all cursor-pointer'
@@ -458,12 +456,12 @@ export default function ModalReporte({
                                     text: 'No se pudo eliminar el reporte del servidor.',
                                     icon: 'error',
                                     iconColor: '#ff3d3d',
-                                    background: '#0a0a0a',
+                                    background: '#080d1a',
                                     color: '#e0e0e0',
                                     confirmButtonText: 'Aceptar',
                                     confirmButtonColor: '#00aaff',
                                     customClass: {
-                                      popup: 'border border-[#222] rounded-xl',
+                                      popup: 'border border-white/5 rounded-2xl',
                                       title: 'text-[#ff3d3d] font-bold text-lg',
                                       htmlContainer: 'text-gray-300 text-xs mt-2',
                                       confirmButton: 'bg-[#00aaff] text-black px-4 py-2 rounded-lg font-bold text-sm hover:bg-white transition-all cursor-pointer'
@@ -510,7 +508,7 @@ export default function ModalReporte({
                         setVideosSeleccionados([...videosDisponibles]);
                       }
                     }}
-                    className="px-3 py-1 rounded border border-[#333] hover:border-gray-500 text-xs font-semibold text-gray-400 hover:text-white transition-all bg-transparent cursor-pointer"
+                    className="px-3 py-1 rounded-lg border border-white/10 hover:border-[#00aaff]/40 text-xs font-semibold text-gray-400 hover:text-white transition-all bg-transparent cursor-pointer"
                   >
                     {videosSeleccionados.length === videosDisponibles.length ? "Deseleccionar Todos" : "Seleccionar Todos"}
                   </button>
@@ -537,10 +535,10 @@ export default function ModalReporte({
                               setVideosSeleccionados([...videosSeleccionados, id]);
                             }
                           }}
-                          className={`p-3 rounded-lg border cursor-pointer transition-all flex items-center justify-between
+                          className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between
                             ${estaSeleccionado
                               ? 'border-[#00aaff] bg-[#00aaff]/5 text-white shadow-[0_0_8px_rgba(0,170,255,0.05)]'
-                              : 'border-[#222] bg-[#121212] text-gray-400 hover:border-gray-700 hover:text-white'
+                              : 'border-white/5 bg-[#0d1527]/40 text-gray-400 hover:border-[#00aaff]/40 hover:text-white'
                             }`}
                         >
                           <div className="flex items-center gap-3">
@@ -548,7 +546,7 @@ export default function ModalReporte({
                               type="checkbox"
                               checked={estaSeleccionado}
                               readOnly
-                              className="accent-[#00aaff] cursor-pointer w-4 h-4 rounded border-[#333]"
+                              className="accent-[#00aaff] cursor-pointer w-4 h-4 rounded border-white/10"
                             />
                             <div className="flex flex-col">
                               <span className="font-bold text-sm">Video #{id}</span>
@@ -560,7 +558,7 @@ export default function ModalReporte({
                               ? 'bg-[#00d2ff]/20 text-[#00d2ff] border border-[#00d2ff]/50'
                               : conteo > 0
                                 ? 'bg-[#00aaff]/10 text-[#00aaff]/80 border border-[#00aaff]/30'
-                                : 'bg-[#222] text-gray-500'
+                                : 'bg-[#030712] text-gray-500'
                             }`}
                           >
                             {conteo > 20 ? 'Urgente' : conteo > 0 ? 'Media' : 'Estable'}
@@ -572,10 +570,10 @@ export default function ModalReporte({
                 )}
               </div>
 
-              <div className="border-t border-[#222] pt-4 mt-4 flex justify-end gap-3 bg-[#0a0a0a]">
+              <div className="border-t border-white/5 pt-4 mt-4 flex justify-end gap-3 bg-transparent">
                 <button
                   onClick={onClose}
-                  className="px-4 py-2 rounded-lg border border-[#333] hover:border-gray-500 text-xs font-bold text-gray-400 hover:text-white transition-all bg-transparent cursor-pointer"
+                  className="px-4 py-2 rounded-lg border border-white/10 hover:border-[#00aaff]/40 text-xs font-bold text-gray-400 hover:text-white transition-all bg-transparent cursor-pointer"
                 >
                   Cancelar
                 </button>
@@ -589,7 +587,7 @@ export default function ModalReporte({
                   className={`px-5 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all ${
                     videosSeleccionados.length > 0
                       ? 'bg-gradient-to-r from-[#00aaff] to-[#0077cc] text-white shadow-[0_0_10px_rgba(0,170,255,0.3)] hover:shadow-[0_0_15px_rgba(0,170,255,0.5)] border-none cursor-pointer'
-                      : 'bg-[#222] text-gray-600 border border-[#333] cursor-not-allowed'
+                      : 'bg-[#0d1527]/20 text-gray-600 border border-white/5 cursor-not-allowed'
                   }`}
                 >
                   <i className="fa-solid fa-robot"></i> Generar Reporte de Inspección
@@ -646,21 +644,21 @@ export default function ModalReporte({
                       <strong className="text-sm font-bold mt-0.5">{statsReporte.urgencia}</strong>
                     </div>
                     {/* Baches */}
-                    <div className="p-2.5 rounded-lg border border-[#222] bg-[#121212] text-center flex flex-col justify-center items-center">
+                    <div className="p-2.5 rounded-lg border border-white/5 bg-[#0d1527]/40 text-center flex flex-col justify-center items-center">
                       <span className="text-[0.65rem] text-gray-500 uppercase tracking-wider font-semibold">Baches (D40)</span>
                       <strong className="text-sm font-bold text-gray-200 mt-0.5 flex items-center gap-1.5">
                         <i className="fa-solid fa-circle text-[#00b8ff] text-[8px] shadow-[0_0_4px_#00b8ff]"></i> {statsReporte.baches}
                       </strong>
                     </div>
                     {/* Grietas */}
-                    <div className="p-2.5 rounded-lg border border-[#222] bg-[#121212] text-center flex flex-col justify-center items-center">
+                    <div className="p-2.5 rounded-lg border border-white/5 bg-[#0d1527]/40 text-center flex flex-col justify-center items-center">
                       <span className="text-[0.65rem] text-gray-500 uppercase tracking-wider font-semibold">Grietas (D20)</span>
                       <strong className="text-sm font-bold text-gray-200 mt-0.5 flex items-center gap-1.5">
                         <i className="fa-solid fa-circle text-[#a3f7ff] text-[8px] shadow-[0_0_4px_#a3f7ff]"></i> {statsReporte.grietas}
                       </strong>
                     </div>
                     {/* Videos Involucrados */}
-                    <div className="p-2.5 rounded-lg border border-[#222] bg-[#121212] text-center flex flex-col justify-center items-center">
+                    <div className="p-2.5 rounded-lg border border-white/5 bg-[#0d1527]/40 text-center flex flex-col justify-center items-center">
                       <span className="text-[0.65rem] text-gray-500 uppercase tracking-wider font-semibold">Origen</span>
                       <strong 
                         className="text-xs font-semibold text-[#00aaff] truncate w-full mt-0.5 text-center" 
@@ -672,7 +670,7 @@ export default function ModalReporte({
                   </div>
 
                   {/* Card de Recorrido / Tramos */}
-                  <div className="p-2.5 mb-6 rounded-lg border border-[#222] bg-[#121212] flex items-center gap-3">
+                  <div className="p-2.5 mb-6 rounded-lg border border-white/5 bg-[#0d1527]/40 flex items-center gap-3">
                     <div className="bg-[#00aaff]/10 text-[#00aaff] p-2 rounded-lg border border-[#00aaff]/20 flex items-center justify-center">
                       <i className="fa-solid fa-route text-sm"></i>
                     </div>
