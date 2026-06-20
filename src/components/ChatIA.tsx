@@ -53,14 +53,21 @@ export default function ChatIA({ videoSeleccionado, onVolverGlobal }) {
       let respuestaAcumulada = "";
       let mensajeAgregado = false;
 
+      console.log("[ChatIA] Iniciando lectura de stream...");
+
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {
+          console.log("[ChatIA] Stream finalizado (done: true)");
+          break;
+        }
 
         const chunkText = decoder.decode(value, { stream: true });
+        console.log("[ChatIA] Chunk recibido:", JSON.stringify(chunkText));
         
         // Omitimos el keep-alive space inicial si llega vacío
         if (chunkText === " " && respuestaAcumulada === "") {
+          console.log("[ChatIA] Omitiendo espacio de keep-alive inicial.");
           setCargando(false);
           continue;
         }
@@ -70,6 +77,7 @@ export default function ChatIA({ videoSeleccionado, onVolverGlobal }) {
 
         if (!mensajeAgregado) {
           mensajeAgregado = true;
+          console.log("[ChatIA] Creando burbuja de respuesta con:", respuestaAcumulada);
           setMensajes(prev => [...prev, { rol: "ai", texto: respuestaAcumulada }]);
         } else {
           setMensajes(prev => {
@@ -81,7 +89,17 @@ export default function ChatIA({ videoSeleccionado, onVolverGlobal }) {
           });
         }
       }
+
+      // Si el stream terminó y nunca agregamos la respuesta de la IA (porque se cortó o vino vacío)
+      if (!mensajeAgregado) {
+        console.warn("[ChatIA] El stream finalizó sin datos útiles. Mostrando mensaje de error.");
+        setMensajes(prev => [...prev, { 
+          rol: "ai", 
+          texto: "<i class='fa-solid fa-triangle-exclamation text-[#ff3d3d] mr-1.5'></i> **Error.** No se recibió respuesta del agente (conexión cerrada prematuramente). Intenta de nuevo." 
+        }]);
+      }
     } catch (error) {
+      console.error("[ChatIA] Error en enviarMensaje:", error);
       setMensajes(prev => [...prev, { rol: "ai", texto: "<i class='fa-solid fa-triangle-exclamation text-[#ff3d3d] mr-1.5'></i> **Error.** Verifica la conexión con el contenedor de la API." }]);
     } finally {
       setCargando(false);
