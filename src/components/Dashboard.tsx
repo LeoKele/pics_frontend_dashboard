@@ -48,10 +48,21 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
     localStorage.setItem("umbral_confianza", umbralConfianza.toString());
   }, [umbralConfianza]);
 
-  // Filtrar detecciones en tiempo real
+  // Filtro de clases/tipos de falla interactivo
+  const [filtrosClases, setFiltrosClases] = useState<Record<string, boolean>>({
+    "D40": true,
+    "D20": true,
+    "calle_tierra": true,
+  });
+
+  // Filtrar detecciones en tiempo real (por confianza y tipo de daño)
   const deteccionesFiltradas = useMemo(() => {
-    return deteccionesTotales.filter((d: any) => d.confianza >= umbralConfianza);
-  }, [deteccionesTotales, umbralConfianza]);
+    return deteccionesTotales.filter((d: any) => {
+      const pasaConfianza = d.confianza >= umbralConfianza;
+      const pasaClase = filtrosClases[d.tipo_dano] !== false;
+      return pasaConfianza && pasaClase;
+    });
+  }, [deteccionesTotales, umbralConfianza, filtrosClases]);
 
   // Sincronizar estadísticas cuando cambien las detecciones totales o el filtro
   useEffect(() => {
@@ -171,7 +182,7 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
 
           <div className="bg-[#121212] rounded-xl p-2.5 text-center border border-[#222] hover:border-[#00aaff]/30 transition-colors">
             <div className="text-2xl font-bold text-[#00aaff] drop-shadow-[0_0_8px_rgba(0,170,255,0.6)]">{stats.baches}</div>
-            <div className="text-[0.65rem] text-gray-400 uppercase tracking-widest mt-1 font-semibold">Baches detectados</div>
+            <div className="text-[0.65rem] text-gray-400 uppercase tracking-widest mt-1 font-semibold">Detecciones</div>
           </div>
           <div className="bg-[#121212] rounded-xl p-2.5 text-center border border-[#222] hover:border-[#00aaff]/30 transition-colors">
             <div className="text-2xl font-bold text-[#00aaff] drop-shadow-[0_0_8px_rgba(0,170,255,0.6)]">{stats.videos}</div>
@@ -262,6 +273,8 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
                trayectorias={trayectorias}
                onSeleccionarVideo={setVideoSeleccionado}
                onSeleccionarFalla={setFallaSeleccionada}
+               filtrosClases={filtrosClases}
+               setFiltrosClases={setFiltrosClases}
              />
            </div>
 

@@ -193,6 +193,13 @@ export default function FotoDeteccion({ falla, videoSeleccionado, onAuditoriaCom
   // 3. Armamos la URL final
   const urlImagen = `${MINIO_URL}/detecciones/${rutaSegura}`;
 
+  const nombresAmigables: Record<string, string> = {
+    "D40": "Bache",
+    "D20": "Grieta / Fisura",
+    "calle_tierra": "Calle de Tierra"
+  };
+  const tipoLegible = nombresAmigables[falla?.tipo_dano || ""] || falla?.tipo_dano || "Bache";
+
   return (
     <div className="flex flex-col h-full overflow-y-auto pr-2 custom-scrollbar">
       {/* IMAGEN CON CAJA Y EFECTO LUPA INTELIGENTE */}
@@ -228,7 +235,7 @@ export default function FotoDeteccion({ falla, videoSeleccionado, onAuditoriaCom
             style={bboxStyle}
           >
             <span className="absolute -top-6 -left-[2px] bg-[#00aaff] text-black text-[0.7rem] px-2 py-0.5 rounded-t-md font-bold uppercase whitespace-nowrap shadow-[0_0_5px_rgba(0,170,255,0.6)]">
-              {falla.tipo_dano || 'FALLA'}
+              {tipoLegible}
             </span>
           </div>
         </div>
@@ -241,7 +248,7 @@ export default function FotoDeteccion({ falla, videoSeleccionado, onAuditoriaCom
           <i className="fa-solid fa-tag text-gray-500 w-5 text-center"></i>
           <strong className="text-gray-400">Tipo:</strong>
           <span className="text-[#00aaff] font-bold uppercase drop-shadow-[0_0_5px_rgba(0,170,255,0.5)] ml-1">
-            {falla.tipo_dano || 'Bache'}
+            {tipoLegible}
           </span>
         </div>
         <div className="flex items-center gap-2">
