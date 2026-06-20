@@ -31,7 +31,7 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
   const [deteccionesTotales, setDeteccionesTotales] = useState<Falla[]>([]);
   const [fallaSeleccionada, setFallaSeleccionada] = useState<Falla | null>(null);
   const [modalAbierto, setModalAbierto] = useState(false);
-  const [metodoModal, setMetodoModal] = useState("GET");
+  const [metodoModal, setMetodoModal] = useState<"GET" | "POST">("GET");
   const [trayectorias, setTrayectorias] = useState({});
   const [estadoSistema, setEstadoSistema] = useState("LOADING");
 
@@ -111,9 +111,13 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
           try {
             const vRes = await fetch(`${API_URL}/api/v1/videos/${id}`);
             const vData = await vRes.json();
-            return { id, estado: vData.estado ? vData.estado.toUpperCase() : "DESCONOCIDO" };
+            return { 
+              id, 
+              estado: vData.estado ? vData.estado.toUpperCase() : "DESCONOCIDO",
+              detecciones_count: vData.detecciones_count ?? 0
+            };
           } catch {
-            return { id, estado: "ERROR" };
+            return { id, estado: "ERROR", detecciones_count: 0 };
           }
         })
       );
@@ -224,12 +228,33 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
                   className={`bg-[#121212] rounded-lg p-2 border-l-[4px] cursor-pointer transition-all duration-200 text-xs sm:text-sm flex flex-col gap-1 shadow-sm
                     ${videoSeleccionado === vid.id ? 'border-[#00aaff] bg-[#1a1a1a] shadow-[0_0_10px_rgba(0,170,255,0.15)]' : 'border-transparent hover:border-[#00aaff]/50 hover:bg-[#1a1a1a]'}`}
                 >
-                  <div className="font-bold text-gray-200"><i className="fa-solid fa-film text-[#00aaff] opacity-80 mr-2"></i> Video #{vid.id}</div>
-                  <div className={`text-[0.75rem] font-bold w-fit px-2 py-0.5 rounded-full
-                    ${vid.estado === 'PROCESADO' ? 'bg-[#00aaff]/15 text-[#00aaff] border border-[#00aaff]/40' :
-                      vid.estado === 'PENDIENTE' ? 'bg-[#00aaff]/5 text-[#00aaff]/60 border border-[#00aaff]/20' :
-                      'bg-[#00aaff]/10 text-[#00aaff] border border-[#00aaff]/30 animate-pulse'}`}>
-                    {vid.estado === 'PENDIENTE' ? <i className="fa-solid fa-clock mr-1"></i> : vid.estado === 'PROCESADO' ? <i className="fa-solid fa-check mr-1"></i> : <i className="fa-solid fa-circle-notch fa-spin mr-1"></i>} {vid.estado}
+                  <div className="font-bold text-gray-200 flex justify-between items-center">
+                    <span><i className="fa-solid fa-film text-[#00aaff] opacity-80 mr-2"></i> Video #{vid.id}</span>
+                    {vid.estado === 'PROCESADO' && (
+                      <span className={`text-[0.65rem] px-1.5 py-0.5 rounded font-bold
+                        ${vid.detecciones_count > 20
+                          ? 'bg-[#00d2ff]/20 text-[#00d2ff] border border-[#00d2ff]/50 shadow-[0_0_8px_rgba(0,210,255,0.2)]'
+                          : vid.detecciones_count > 0
+                            ? 'bg-[#00aaff]/10 text-[#00aaff]/80 border border-[#00aaff]/30'
+                            : 'bg-[#222] text-gray-500 border border-transparent'
+                        }`}
+                      >
+                        {vid.detecciones_count > 20 ? 'Urgente' : vid.detecciones_count > 0 ? 'Media' : 'Estable'}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex gap-2 items-center mt-1">
+                    <span className={`text-[0.65rem] font-bold px-2 py-0.5 rounded-full
+                      ${vid.estado === 'PROCESADO' ? 'bg-[#00aaff]/15 text-[#00aaff]/80 border border-[#00aaff]/30' :
+                        vid.estado === 'PENDIENTE' ? 'bg-[#222] text-gray-500 border border-[#333]' :
+                        'bg-[#00aaff]/10 text-[#00aaff] border border-[#00aaff]/30 animate-pulse'}`}>
+                      {vid.estado === 'PENDIENTE' ? <i className="fa-solid fa-clock mr-1"></i> : vid.estado === 'PROCESADO' ? <i className="fa-solid fa-check mr-1"></i> : <i className="fa-solid fa-circle-notch fa-spin mr-1"></i>} {vid.estado}
+                    </span>
+                    {vid.estado === 'PROCESADO' && (
+                      <span className="text-[0.7rem] text-gray-400">
+                        {vid.detecciones_count} {vid.detecciones_count === 1 ? 'detección' : 'detecciones'}
+                      </span>
+                    )}
                   </div>
                 </div>
               ))
@@ -239,26 +264,26 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
           <div className="mt-auto flex flex-col gap-2 pt-2">
             <button
               onClick={() => { setMetodoModal("GET"); setModalAbierto(true); }}
-              disabled={!videoSeleccionado}
+              disabled={listaVideos.length === 0}
               className={`w-full p-2.5 rounded-lg font-bold text-xs sm:text-sm flex justify-center items-center gap-1.5 transition-all duration-300 ${
-                videoSeleccionado
+                listaVideos.length > 0
                   ? 'bg-gradient-to-r from-[#00aaff] to-[#0077cc] text-white shadow-[0_0_10px_rgba(0,170,255,0.3)] hover:shadow-[0_0_15px_rgba(0,170,255,0.5)] border-none cursor-pointer'
                   : 'bg-[#121212] text-gray-600 border border-[#222] cursor-not-allowed'
               }`}
             >
-              <i className="fa-solid fa-file-lines"></i> Ver Reporte
+              <i className="fa-solid fa-file-lines"></i> {videoSeleccionado ? `Ver Reporte (#${videoSeleccionado})` : 'Ver Reporte Consolidado'}
             </button>
 
             <button
               onClick={() => { setMetodoModal("POST"); setModalAbierto(true); }}
-              disabled={!videoSeleccionado}
+              disabled={listaVideos.length === 0}
               className={`w-full border p-2.5 rounded-lg font-bold text-xs sm:text-sm flex justify-center items-center gap-1.5 transition-all duration-300 ${
-                videoSeleccionado
+                listaVideos.length > 0
                   ? 'bg-[#0a0a0a] border-[#00aaff] text-[#00aaff] shadow-[0_0_10px_rgba(0,170,255,0.2)] hover:bg-[#121212] hover:shadow-[0_0_15px_rgba(0,170,255,0.4)] cursor-pointer'
                   : 'bg-[#0a0a0a] border-[#222] text-gray-600 cursor-not-allowed'
               }`}
             >
-              <i className="fa-solid fa-robot"></i> Generar Reporte IA
+              <i className="fa-solid fa-robot"></i> {videoSeleccionado ? 'Generar Reporte IA' : 'Generar Reporte Global IA'}
             </button>
           </div>
         </aside>
@@ -334,6 +359,7 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
         onClose={() => setModalAbierto(false)}
         videoSeleccionado={videoSeleccionado}
         metodo={metodoModal}
+        detecciones={deteccionesTotales}
       />
     </div>
   );
