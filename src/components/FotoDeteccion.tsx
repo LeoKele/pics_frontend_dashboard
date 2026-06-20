@@ -243,26 +243,26 @@ export default function FotoDeteccion({ falla, videoSeleccionado, onAuditoriaCom
       </div>
 
       {/* METADATOS */}
-      <div className="bg-[#121212] p-3 rounded-lg border border-[#222] text-sm flex flex-col gap-2 shadow-inner">
+      <div className="bg-[#080d1a]/55 backdrop-blur-md p-3 rounded-lg border border-[#00aaff]/10 text-sm flex flex-col gap-2 shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
         <div className="flex items-center gap-2">
-          <i className="fa-solid fa-tag text-gray-500 w-5 text-center"></i>
+          <i className="fa-solid fa-tag text-[#00aaff]/60 w-5 text-center"></i>
           <strong className="text-gray-400">Tipo:</strong>
           <span className="text-[#00aaff] font-bold uppercase drop-shadow-[0_0_5px_rgba(0,170,255,0.5)] ml-1">
             {tipoLegible}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <i className="fa-solid fa-percent text-gray-500 w-5 text-center"></i>
+          <i className="fa-solid fa-percent text-[#00aaff]/60 w-5 text-center"></i>
           <strong className="text-gray-400">Confianza:</strong>
-          <span className="text-gray-200">{(falla.confianza * 100).toFixed(0)}%</span>
+          <span className="text-[#00aaff] font-semibold">{(falla.confianza * 100).toFixed(0)}%</span>
         </div>
         <div className="flex items-center gap-2">
-          <i className="fa-solid fa-location-dot text-gray-500 w-5 text-center"></i>
+          <i className="fa-solid fa-location-dot text-[#00aaff]/60 w-5 text-center"></i>
           <strong className="text-gray-400">Ubicación:</strong>
           <span className="text-gray-200">{ubicacion}</span>
         </div>
         <div className="flex items-center gap-2">
-          <i className="fa-solid fa-calendar text-gray-500 w-5 text-center"></i>
+          <i className="fa-solid fa-calendar text-[#00aaff]/60 w-5 text-center"></i>
           <strong className="text-gray-400">Fecha:</strong>
           <span className="text-gray-200">{new Date(falla.fecha).toLocaleDateString('es-AR')}</span>
         </div>
