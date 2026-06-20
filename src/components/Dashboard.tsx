@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { Falla } from "../types";
 import FotoDeteccion from "./FotoDeteccion";
@@ -34,6 +34,30 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
   const [metodoModal, setMetodoModal] = useState("GET");
   const [trayectorias, setTrayectorias] = useState({});
   const [estadoSistema, setEstadoSistema] = useState("LOADING");
+
+  // Configuración del umbral de confianza interactivo
+  const [umbralConfianza, setUmbralConfianza] = useState<number>(() => {
+    if (typeof window !== "undefined") {
+      const guardado = localStorage.getItem("umbral_confianza");
+      return guardado ? parseFloat(guardado) : 0.3;
+    }
+    return 0.3;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("umbral_confianza", umbralConfianza.toString());
+  }, [umbralConfianza]);
+
+  // Filtrar detecciones en tiempo real
+  const deteccionesFiltradas = useMemo(() => {
+    return deteccionesTotales.filter((d: any) => d.confianza >= umbralConfianza);
+  }, [deteccionesTotales, umbralConfianza]);
+
+  // Sincronizar estadísticas cuando cambien las detecciones totales o el filtro
+  useEffect(() => {
+    const idsUnicos = [...new Set(deteccionesTotales.filter((d: any) => d.video_id).map((d: any) => d.video_id))];
+    setStats({ baches: deteccionesFiltradas.length, videos: idsUnicos.length });
+  }, [deteccionesTotales, deteccionesFiltradas]);
 
   const volverGlobal = () => {
     setVideoSeleccionado(null);
@@ -70,8 +94,6 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
       }
 
       const idsUnicos = [...new Set(detecciones.filter((d: any) => d.video_id).map((d: any) => d.video_id))];
-
-      setStats({ baches: detecciones.length, videos: idsUnicos.length });
 
       const videosActualizados = await Promise.all(
         idsUnicos.map(async (id) => {
@@ -156,6 +178,24 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
             <div className="text-[0.65rem] text-gray-400 uppercase tracking-widest mt-1 font-semibold">Videos Subidos</div>
           </div>
 
+          {/* CONTROL DE UMBRAL DE CONFIANZA INTERACTIVO */}
+          <div className="bg-[#121212] rounded-xl p-3 border border-[#222] hover:border-[#00aaff]/30 transition-colors flex flex-col gap-2">
+            <div className="flex justify-between items-center text-xs font-bold text-gray-300">
+              <span><i className="fa-solid fa-sliders text-[#00aaff] mr-1.5"></i> Umbral Confianza</span>
+              <span className="text-[#00aaff] bg-[#00aaff]/10 px-1.5 py-0.5 rounded border border-[#00aaff]/30">{(umbralConfianza * 100).toFixed(0)}%</span>
+            </div>
+            <input
+              type="range"
+              min="0.30"
+              max="1.00"
+              step="0.05"
+              value={umbralConfianza}
+              onChange={(e) => setUmbralConfianza(parseFloat(e.target.value))}
+              className="w-full accent-[#00aaff] cursor-pointer h-1 bg-[#222] rounded-lg appearance-none"
+            />
+            <span className="text-[0.6rem] text-gray-500 text-center">Filtrar detecciones por precisión</span>
+          </div>
+
           <h3 className="text-sm text-[#00aaff] mt-1 uppercase tracking-wide font-bold flex items-center drop-shadow-[0_0_5px_rgba(0,170,255,0.4)]">
             <i className="fa-solid fa-clock-rotate-left mr-2"></i> Historial
           </h3>
@@ -218,7 +258,7 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
            {/* MAPA */}
            <div className="col-span-2 row-span-2 bg-[#0a0a0a] border border-[#222] hover:border-[#00aaff]/30 transition-colors rounded-xl flex items-center justify-center flex-col relative overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.6)]">
              <MapaVial
-               detecciones={deteccionesTotales}
+               detecciones={deteccionesFiltradas}
                trayectorias={trayectorias}
                onSeleccionarVideo={setVideoSeleccionado}
                onSeleccionarFalla={setFallaSeleccionada}
