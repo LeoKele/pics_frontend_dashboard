@@ -34,6 +34,7 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
   const [metodoModal, setMetodoModal] = useState<"GET" | "POST">("GET");
   const [trayectorias, setTrayectorias] = useState({});
   const [estadoSistema, setEstadoSistema] = useState("LOADING");
+  const [estadoReporte, setEstadoReporte] = useState<"idle" | "generando" | "error" | "listo">("idle");
 
   // Configuración del umbral de confianza interactivo
   const [umbralConfianza, setUmbralConfianza] = useState<number>(() => {
@@ -326,6 +327,41 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
                 <i className="fa-solid fa-stopwatch mr-1"></i> Estado del Sistema KEDA
              </div>
              <div className="flex flex-col gap-2">
+                {estadoReporte !== "idle" && (
+                   <div 
+                     onClick={() => { setMetodoModal("POST"); setModalAbierto(true); }}
+                     className="bg-[#121212] p-2 rounded-lg border border-[#00aaff]/30 flex justify-between items-center text-xs sm:text-sm shadow-sm hover:bg-[#1a1a1a] transition-colors cursor-pointer"
+                   >
+                     <strong className="text-gray-300">
+                       <i className="fa-solid fa-robot text-[#00aaff]/70 mr-3"></i>
+                       Generando Reporte Ejecutivo IA
+                     </strong>
+                     <span className={`font-bold tracking-wide flex items-center gap-1.5 ${
+                       estadoReporte === 'generando'
+                         ? 'text-[#00aaff]/60 animate-pulse'
+                         : estadoReporte === 'error'
+                           ? 'text-[#ff3d3d] drop-shadow-[0_0_5px_rgba(255,61,61,0.5)]'
+                           : 'text-[#00d2ff] drop-shadow-[0_0_5px_rgba(0,210,255,0.5)]'
+                     }`}>
+                       {estadoReporte === 'generando' ? (
+                         <>
+                           <i className="fa-solid fa-circle-notch fa-spin"></i>
+                           GENERANDO...
+                         </>
+                       ) : estadoReporte === 'error' ? (
+                         <>
+                           <i className="fa-solid fa-circle-exclamation"></i>
+                           ERROR
+                         </>
+                       ) : (
+                         <>
+                           <i className="fa-solid fa-circle-check"></i>
+                           LISTO
+                         </>
+                       )}
+                     </span>
+                   </div>
+                 )}
                 {listaVideos.length === 0 ? <p className="text-xs italic text-gray-600">En espera de procesamiento de video...</p> : (
                   listaVideos.map(vid => (
                     <div key={`cola-${vid.id}`} className="bg-[#121212] p-2 rounded-lg border border-[#222] flex justify-between items-center text-xs sm:text-sm shadow-sm hover:bg-[#1a1a1a] transition-colors">
@@ -360,6 +396,8 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
         videoSeleccionado={videoSeleccionado}
         metodo={metodoModal}
         detecciones={deteccionesTotales}
+        estadoReporte={estadoReporte}
+        setEstadoReporte={setEstadoReporte}
       />
     </div>
   );

@@ -11,9 +11,19 @@ interface Props {
   videoSeleccionado: number | null;
   metodo: "GET" | "POST";
   detecciones: any[];
+  estadoReporte?: "idle" | "generando" | "error" | "listo";
+  setEstadoReporte?: (estado: "idle" | "generando" | "error" | "listo") => void;
 }
 
-export default function ModalReporte({ isOpen, onClose, videoSeleccionado, metodo, detecciones = [] }: Props) {
+export default function ModalReporte({
+  isOpen,
+  onClose,
+  videoSeleccionado,
+  metodo,
+  detecciones = [],
+  estadoReporte,
+  setEstadoReporte
+}: Props) {
   const [estado, setEstado] = useState<"loading" | "stream" | "done" | "notfound" | "error">("loading");
   const [contenidoCrudo, setContenidoCrudo] = useState("");
   const [reporteConsultadoId, setReporteConsultadoId] = useState<number | null>(null);
@@ -23,6 +33,24 @@ export default function ModalReporte({ isOpen, onClose, videoSeleccionado, metod
   const [historial, setHistorial] = useState<any[]>([]);
   const [mostrarHistorial, setMostrarHistorial] = useState(false);
   const [reporteSeleccionado, setReporteSeleccionado] = useState<any | null>(null);
+
+  // Estados para selección múltiple de videos
+  const [paso, setPaso] = useState<"seleccion" | "reporte">("reporte");
+  const [videosSeleccionados, setVideosSeleccionados] = useState<number[]>([]);
+  const [estadosVideos, setEstadosVideos] = useState<Record<number, string>>({});
+
+  // Videos únicos con detecciones y filtrados por estado 'procesado', de mayor a menor
+  const videosDisponibles = useMemo(() => {
+    const ids = [...new Set(detecciones.filter((d: any) => d.video_id).map((d: any) => d.video_id))];
+    const procesados = ids.filter((id) => {
+      const est = estadosVideos[id];
+      // Si el estado aún no se cargó, lo incluimos (para evitar pantallazos vacíos).
+      // Si se cargó, solo incluimos si está procesado.
+      return est === undefined || est === "procesado";
+    });
+    procesados.sort((a, b) => b - a);
+    return procesados;
+  }, [detecciones, estadosVideos]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -46,24 +74,91 @@ export default function ModalReporte({ isOpen, onClose, videoSeleccionado, metod
     }
   };
 
+  // Cargar el estado de los videos en paralelo
+  const cargarEstadosVideos = async (ids: number[]) => {
+    try {
+      const mapeados: Record<number, string> = {};
+      await Promise.all(
+        ids.map(async (id) => {
+          try {
+            const res = await fetch(`${API_URL}/api/v1/videos/${id}`);
+            if (res.ok) {
+              const data = await res.json();
+              mapeados[id] = data.estado ? data.estado.toLowerCase() : "desconocido";
+            } else {
+              mapeados[id] = "error";
+            }
+          } catch {
+            mapeados[id] = "error";
+          }
+        })
+      );
+      setEstadosVideos(mapeados);
+    } catch (err) {
+      console.error("Error al cargar estados de videos:", err);
+    }
+  };
+
   useEffect(() => {
     if (isOpen) {
+      if (estadoReporte === "generando" || estadoReporte === "listo") {
+        if (estadoReporte === "listo") {
+          setEstadoReporte?.("idle");
+        }
+        return;
+      }
+
+      if (estadoReporte === "error") {
+        setEstadoReporte?.("idle");
+      }
+
       setReporteSeleccionado(null);
       setContenidoCrudo("");
       setReporteConsultadoId(null);
       setTramosConsultados("");
+      setEstadosVideos({});
       cargarHistorial();
+
+      if (metodo === "POST") {
+        setPaso("seleccion");
+        
+        const ids = [...new Set(detecciones.filter((d: any) => d.video_id).map((d: any) => d.video_id))];
+        cargarEstadosVideos(ids);
+
+        if (videoSeleccionado) {
+          setVideosSeleccionados([videoSeleccionado]);
+        } else {
+          // Pre-seleccionar todos por defecto en reporte consolidado
+          ids.sort((a, b) => b - a);
+          setVideosSeleccionados(ids);
+        }
+      } else {
+        setPaso("reporte");
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
+
+  // Cancelar peticiones activas únicamente al desmontar por completo
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
-
-    // Si el usuario seleccionó un reporte en el historial, no hacemos fetch de la API principal
+    if (paso === "seleccion") return; // Si estamos en el paso de selección, no ejecutar la llamada aún
     if (reporteSeleccionado) return;
 
     setEstado("loading");
 
+    // Abortar cualquier petición anterior si la hubiera
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
     abortControllerRef.current = new AbortController();
 
     const buscarGenerarReporte = async () => {
@@ -75,8 +170,11 @@ export default function ModalReporte({ isOpen, onClose, videoSeleccionado, metod
           url = `${API_URL}/api/v1/reportes/generar`;
           opciones.method = "POST";
           opciones.headers = { "Content-Type": "application/json" };
-          opciones.body = JSON.stringify({ video_ids: videoSeleccionado ? [videoSeleccionado] : [] });
+          // Filtrar videosSeleccionados para incluir únicamente aquellos cuyo estado sea 'procesado'
+          const seleccionadosProcesados = videosSeleccionados.filter(id => videosDisponibles.includes(id));
+          opciones.body = JSON.stringify({ video_ids: seleccionadosProcesados });
           setEstado("stream");
+          setEstadoReporte?.("generando");
         } else {
           url = `${API_URL}/api/v1/reporte/${videoSeleccionado || 0}`;
           opciones.method = "GET";
@@ -108,6 +206,7 @@ export default function ModalReporte({ isOpen, onClose, videoSeleccionado, metod
 
           setContenidoCrudo(textoAcumulado);
           setEstado("done");
+          setEstadoReporte?.("listo");
           
           try {
             const histRes = await fetch(`${API_URL}/api/v1/reportes/historial`);
@@ -133,18 +232,16 @@ export default function ModalReporte({ isOpen, onClose, videoSeleccionado, metod
         if (error.name !== "AbortError") {
           console.error(error);
           setEstado("error");
+          if (metodo === "POST") {
+            setEstadoReporte?.("error");
+          }
         }
       }
     };
 
     buscarGenerarReporte();
-
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, [isOpen, videoSeleccionado, metodo, reporteSeleccionado]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, videoSeleccionado, metodo, reporteSeleccionado, paso, videosSeleccionados]);
 
   // Reporte activo a visualizar (del historial o el cargado actual)
   const reporteActivo = useMemo(() => {
@@ -259,12 +356,12 @@ export default function ModalReporte({ isOpen, onClose, videoSeleccionado, metod
         </div>
 
         {/* BARRA DE PROGRESO */}
-        {estado === "stream" && (
+        {paso === "reporte" && estado === "stream" && (
           <div className="w-full h-1 bg-[#333] relative overflow-hidden">
             <div className="absolute h-full bg-[#00aaff] shadow-[0_0_10px_#00aaff]" style={{ animation: 'ia-loading 1.5s infinite ease-in-out' }}></div>
           </div>
         )}
-        {estado === "done" && metodo === "POST" && (
+        {paso === "reporte" && estado === "done" && metodo === "POST" && (
           <div className="w-full h-1 bg-[#198754] shadow-[0_0_10px_#198754]"></div>
         )}
 
@@ -277,6 +374,8 @@ export default function ModalReporte({ isOpen, onClose, videoSeleccionado, metod
                 <i className="fa-solid fa-history"></i> Reportes Previos
               </h3>
 
+
+
               {historial.length === 0 ? (
                 <p className="text-xs text-gray-500 italic p-2">No hay reportes anteriores</p>
               ) : (
@@ -286,7 +385,7 @@ export default function ModalReporte({ isOpen, onClose, videoSeleccionado, metod
                   return (
                     <div
                       key={rep.id}
-                      onClick={() => setReporteSeleccionado(rep)}
+                      onClick={() => { setReporteSeleccionado(rep); setPaso("reporte"); }}
                       className={`p-2.5 rounded-lg border text-xs cursor-pointer transition-all flex flex-col gap-1
                         ${esActual 
                           ? 'border-[#00aaff] bg-[#00aaff]/5 text-white shadow-[0_0_8px_rgba(0,170,255,0.05)]' 
@@ -394,7 +493,111 @@ export default function ModalReporte({ isOpen, onClose, videoSeleccionado, metod
           )}
 
           {/* CONTENIDO PRINCIPAL */}
-          <div ref={scrollRef} className="flex-1 p-6 overflow-y-auto text-[#e0e0e0] text-sm leading-relaxed custom-scrollbar">
+          {paso === "seleccion" ? (
+            <div className="flex-1 flex flex-col justify-between p-6">
+              <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                <div className="flex justify-between items-center mb-4">
+                  <div>
+                    <h3 className="text-sm font-bold text-[#00aaff] uppercase tracking-wider">Generar Nuevo Reporte de Inspección</h3>
+                    <p className="text-xs text-gray-400 mt-1">Seleccioná uno o varios videos de la lista para consolidar sus datos y redactar el informe.</p>
+                  </div>
+                  
+                  <button
+                    onClick={() => {
+                      if (videosSeleccionados.length === videosDisponibles.length) {
+                        setVideosSeleccionados([]);
+                      } else {
+                        setVideosSeleccionados([...videosDisponibles]);
+                      }
+                    }}
+                    className="px-3 py-1 rounded border border-[#333] hover:border-gray-500 text-xs font-semibold text-gray-400 hover:text-white transition-all bg-transparent cursor-pointer"
+                  >
+                    {videosSeleccionados.length === videosDisponibles.length ? "Deseleccionar Todos" : "Seleccionar Todos"}
+                  </button>
+                </div>
+
+                {videosDisponibles.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="text-[#ffb86c] text-3xl mb-3"><i className="fa-solid fa-triangle-exclamation"></i></div>
+                    <p className="text-gray-400 text-sm">No hay videos procesados con detecciones disponibles.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3 mt-4">
+                    {videosDisponibles.map((id) => {
+                      const conteo = detecciones.filter((d: any) => d.video_id === id).length;
+                      const estaSeleccionado = videosSeleccionados.includes(id);
+                      
+                      return (
+                        <div
+                          key={id}
+                          onClick={() => {
+                            if (estaSeleccionado) {
+                              setVideosSeleccionados(videosSeleccionados.filter((vId) => vId !== id));
+                            } else {
+                              setVideosSeleccionados([...videosSeleccionados, id]);
+                            }
+                          }}
+                          className={`p-3 rounded-lg border cursor-pointer transition-all flex items-center justify-between
+                            ${estaSeleccionado
+                              ? 'border-[#00aaff] bg-[#00aaff]/5 text-white shadow-[0_0_8px_rgba(0,170,255,0.05)]'
+                              : 'border-[#222] bg-[#121212] text-gray-400 hover:border-gray-700 hover:text-white'
+                            }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="checkbox"
+                              checked={estaSeleccionado}
+                              readOnly
+                              className="accent-[#00aaff] cursor-pointer w-4 h-4 rounded border-[#333]"
+                            />
+                            <div className="flex flex-col">
+                              <span className="font-bold text-sm">Video #{id}</span>
+                              <span className="text-[0.7rem] text-gray-500">{conteo} {conteo === 1 ? 'detección' : 'detecciones'}</span>
+                            </div>
+                          </div>
+                          <span className={`text-[0.65rem] px-1.5 py-0.5 rounded font-bold
+                            ${conteo > 5
+                              ? 'bg-[#00d2ff]/20 text-[#00d2ff] border border-[#00d2ff]/50'
+                              : conteo > 0
+                                ? 'bg-[#00aaff]/10 text-[#00aaff]/80 border border-[#00aaff]/30'
+                                : 'bg-[#222] text-gray-500'
+                            }`}
+                          >
+                            {conteo > 5 ? 'Urgente' : conteo > 0 ? 'Media' : 'Estable'}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div className="border-t border-[#222] pt-4 mt-4 flex justify-end gap-3 bg-[#0a0a0a]">
+                <button
+                  onClick={onClose}
+                  className="px-4 py-2 rounded-lg border border-[#333] hover:border-gray-500 text-xs font-bold text-gray-400 hover:text-white transition-all bg-transparent cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => {
+                    setReporteSeleccionado(null);
+                    setContenidoCrudo("");
+                    setPaso("reporte");
+                  }}
+                  disabled={videosSeleccionados.length === 0}
+                  className={`px-5 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all ${
+                    videosSeleccionados.length > 0
+                      ? 'bg-gradient-to-r from-[#00aaff] to-[#0077cc] text-white shadow-[0_0_10px_rgba(0,170,255,0.3)] hover:shadow-[0_0_15px_rgba(0,170,255,0.5)] border-none cursor-pointer'
+                      : 'bg-[#222] text-gray-600 border border-[#333] cursor-not-allowed'
+                  }`}
+                >
+                  <i className="fa-solid fa-robot"></i> Generar Reporte de Inspección
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div ref={scrollRef} className="flex-1 p-6 overflow-y-auto text-[#e0e0e0] text-sm leading-relaxed custom-scrollbar">
 
             {estado === "loading" && !reporteSeleccionado && (
               <div className="text-center py-12">
@@ -488,6 +691,7 @@ export default function ModalReporte({ isOpen, onClose, videoSeleccionado, metod
             })()}
 
           </div>
+        )}
         </div>
       </div>
     </div>
