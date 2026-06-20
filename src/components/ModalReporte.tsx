@@ -556,14 +556,14 @@ export default function ModalReporte({
                             </div>
                           </div>
                           <span className={`text-[0.65rem] px-1.5 py-0.5 rounded font-bold
-                            ${conteo > 5
+                            ${conteo > 20
                               ? 'bg-[#00d2ff]/20 text-[#00d2ff] border border-[#00d2ff]/50'
                               : conteo > 0
                                 ? 'bg-[#00aaff]/10 text-[#00aaff]/80 border border-[#00aaff]/30'
                                 : 'bg-[#222] text-gray-500'
                             }`}
                           >
-                            {conteo > 5 ? 'Urgente' : conteo > 0 ? 'Media' : 'Estable'}
+                            {conteo > 20 ? 'Urgente' : conteo > 0 ? 'Media' : 'Estable'}
                           </span>
                         </div>
                       );

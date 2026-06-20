@@ -147,7 +147,7 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
         <div className="flex items-center gap-3">
           {rol === 'admin' && (
             <a
-              href={GRAFANA_URL}
+              href={`${GRAFANA_URL}/explore?left=%5B%22now-1h%22%2C%22now%22%2C%22Loki%22%2C%7B%22expr%22%3A%22%7Bservice%3D%5C%22api_fastapi%5C%22%7D%22%7D%5D`}
               target="_blank"
               rel="noopener noreferrer"
               className="bg-[#121212] text-[#e0e0e0] border border-[#333] rounded-full px-3 py-1.5 text-xs sm:text-sm font-semibold flex items-center gap-1.5 hover:bg-[#1a1a1a] hover:border-[#00aaff]/50 hover:text-white transition-all no-underline shadow-[0_0_10px_rgba(0,0,0,0.5)]"
@@ -156,19 +156,17 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
             </a>
           )}
 
-          {rol === 'admin' && (
-            <Link
-              href="/status"
-              className="bg-[#121212] px-3.5 py-1.5 rounded-full border border-[#333] flex items-center gap-1.5 text-xs sm:text-sm font-bold cursor-pointer hover:bg-[#1a1a1a] hover:border-[#00aaff]/50 transition-all no-underline text-white shadow-[0_0_10px_rgba(0,0,0,0.5)]"
-            >
-              <div className={`w-3 h-3 rounded-full bg-[#00aaff] shadow-[0_0_8px_#00aaff] ${estadoSistema === 'LOADING' ? 'animate-pulse' : ''}`}></div>
-              <span>
-                {estadoSistema === 'VERDE' ? 'Sistemas OK' :
-                 estadoSistema === 'AMARILLO' ? 'Advertencia' :
-                 estadoSistema === 'ROJO' ? 'Falla Crítica' : 'Consultando...'}
-              </span>
-            </Link>
-          )}
+          <Link
+            href="/status"
+            className="bg-[#121212] px-3.5 py-1.5 rounded-full border border-[#333] flex items-center gap-1.5 text-xs sm:text-sm font-bold cursor-pointer hover:bg-[#1a1a1a] hover:border-[#00aaff]/50 transition-all no-underline text-white shadow-[0_0_10px_rgba(0,0,0,0.5)]"
+          >
+            <div className={`w-3 h-3 rounded-full bg-[#00aaff] shadow-[0_0_8px_#00aaff] ${estadoSistema === 'LOADING' ? 'animate-pulse' : ''}`}></div>
+            <span>
+              {estadoSistema === 'VERDE' ? 'Sistemas OK' :
+               estadoSistema === 'AMARILLO' ? 'Advertencia' :
+               estadoSistema === 'ROJO' ? 'Falla Crítica' : 'Consultando...'}
+            </span>
+          </Link>
 
           <div className="bg-[#121212] px-3.5 py-1.5 rounded-full border border-[#333] flex items-center gap-1.5 text-xs sm:text-sm shadow-[0_0_10px_rgba(0,0,0,0.5)]">
             <i className="fa-solid fa-user-tie text-[#00aaff]"></i>

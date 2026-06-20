@@ -162,7 +162,7 @@ export default function StatusPage() {
             <ServiceRow nombre="PostgreSQL (Cloud SQL)" icono="fa-solid fa-database" estado={servicios.postgresql} />
             <ServiceRow nombre="Redis (Cola de Mensajes)" icono="fa-solid fa-memory" estado={servicios.redis} />
             <ServiceRow nombre="MinIO (Almacenamiento)" icono="fa-solid fa-box-archive" estado={servicios.minio} />
-            <ServiceRow nombre="Ollama (IA Llama 3.2)" icono="fa-solid fa-brain" estado={servicios.ollama} />
+            <ServiceRow nombre="Modelo LLM (Inteligencia Artificial)" icono="fa-solid fa-brain" estado={servicios.ollama} />
           </div>
         </div>
 
