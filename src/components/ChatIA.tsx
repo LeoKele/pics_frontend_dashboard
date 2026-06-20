@@ -45,10 +45,42 @@ export default function ChatIA({ videoSeleccionado, onVolverGlobal }) {
       });
 
       if (!res.ok) throw new Error("Fallo en la IA");
-      const data = await res.json();
-      const respuestaIA = data.respuesta || data.mensaje || JSON.stringify(data);
 
-      setMensajes(prev => [...prev, { rol: "ai", texto: respuestaIA }]);
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error("No readable stream");
+
+      const decoder = new TextDecoder("utf-8");
+      let respuestaAcumulada = "";
+      let mensajeAgregado = false;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunkText = decoder.decode(value, { stream: true });
+        
+        // Omitimos el keep-alive space inicial si llega vacío
+        if (chunkText === " " && respuestaAcumulada === "") {
+          setCargando(false);
+          continue;
+        }
+
+        respuestaAcumulada += chunkText;
+        setCargando(false);
+
+        if (!mensajeAgregado) {
+          mensajeAgregado = true;
+          setMensajes(prev => [...prev, { rol: "ai", texto: respuestaAcumulada }]);
+        } else {
+          setMensajes(prev => {
+            const nuevos = [...prev];
+            if (nuevos.length > 0) {
+              nuevos[nuevos.length - 1] = { rol: "ai", texto: respuestaAcumulada };
+            }
+            return nuevos;
+          });
+        }
+      }
     } catch (error) {
       setMensajes(prev => [...prev, { rol: "ai", texto: "<i class='fa-solid fa-triangle-exclamation text-[#ff3d3d] mr-1.5'></i> **Error.** Verifica la conexión con el contenedor de la API." }]);
     } finally {
