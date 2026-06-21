@@ -171,8 +171,7 @@ export default function ModalReporte({
           opciones.method = "POST";
           opciones.headers = { "Content-Type": "application/json" };
           // Filtrar videosSeleccionados para incluir únicamente aquellos cuyo estado sea 'procesado'
-          const seleccionadosProcesados = videosSeleccionados.filter(id => videosDisponibles.includes(id));
-          opciones.body = JSON.stringify({ video_ids: seleccionadosProcesados });
+          opciones.body = JSON.stringify({ video_ids: videosSeleccionados });
           setEstado("stream");
           setEstadoReporte?.("generando");
         } else {
