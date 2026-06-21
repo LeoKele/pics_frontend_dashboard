@@ -38,7 +38,7 @@ export default function ChatIA({ videoSeleccionado, onVolverGlobal }) {
 
     try {
       const contexto = videoSeleccionado || 0;
-      const res = await fetch(`${API_URL}/api/v1/video/${contexto}/preguntar`, {
+      const res = await fetch(`${API_URL}/api/v1/video/${contexto}/preguntar?t=${Date.now()}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pregunta: textoUsuario })
@@ -95,12 +95,12 @@ export default function ChatIA({ videoSeleccionado, onVolverGlobal }) {
         console.warn("[ChatIA] El stream finalizó sin datos útiles. Mostrando mensaje de error.");
         setMensajes(prev => [...prev, { 
           rol: "ai", 
-          texto: "<i class='fa-solid fa-triangle-exclamation text-[#ff3d3d] mr-1.5'></i> **Error.** No se recibió respuesta del agente (conexión cerrada prematuramente). Intenta de nuevo." 
+          texto: "<i class='fa-solid fa-triangle-exclamation text-[#00aaff] mr-1.5'></i> **Error.** No se recibió respuesta del agente (conexión cerrada prematuramente). Intenta de nuevo." 
         }]);
       }
     } catch (error) {
       console.error("[ChatIA] Error en enviarMensaje:", error);
-      setMensajes(prev => [...prev, { rol: "ai", texto: "<i class='fa-solid fa-triangle-exclamation text-[#ff3d3d] mr-1.5'></i> **Error.** Verifica la conexión con el contenedor de la API." }]);
+      setMensajes(prev => [...prev, { rol: "ai", texto: "<i class='fa-solid fa-triangle-exclamation text-[#00aaff] mr-1.5'></i> **Error.** Verifica la conexión con el contenedor de la API." }]);
     } finally {
       setCargando(false);
     }

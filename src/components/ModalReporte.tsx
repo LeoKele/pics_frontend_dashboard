@@ -25,6 +25,7 @@ export default function ModalReporte({
   setEstadoReporte
 }: Props) {
   const [estado, setEstado] = useState<"loading" | "stream" | "done" | "notfound" | "error">("loading");
+  const [nombreModelo, setNombreModelo] = useState("Gemini");
   const [contenidoCrudo, setContenidoCrudo] = useState("");
   const [reporteConsultadoId, setReporteConsultadoId] = useState<number | null>(null);
   const [tramosConsultados, setTramosConsultados] = useState("");
@@ -74,6 +75,25 @@ export default function ModalReporte({
     }
   };
 
+  const cargarNombreModelo = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/v1/health`);
+      if (res.ok) {
+        const data = await res.json();
+        const statusOllama = data.servicios?.ollama || "";
+        const match = statusOllama.match(/\((.*?)\)/);
+        if (match && match[1]) {
+          const modeloLimpio = match[1].replace("Gemini: ", "").replace("Ollama: ", "");
+          setNombreModelo(modeloLimpio);
+        } else if (statusOllama.includes("Gemini:")) {
+          setNombreModelo(statusOllama.split("Gemini:")[1].trim());
+        }
+      }
+    } catch (err) {
+      console.error("Error al cargar nombre de modelo:", err);
+    }
+  };
+
   // Cargar el estado de los videos en paralelo
   const cargarEstadosVideos = async (ids: number[]) => {
     try {
@@ -118,6 +138,7 @@ export default function ModalReporte({
       setTramosConsultados("");
       setEstadosVideos({});
       cargarHistorial();
+      cargarNombreModelo();
 
       if (metodo === "POST") {
         setPaso("seleccion");
@@ -605,7 +626,7 @@ export default function ModalReporte({
 
             {estado === "stream" && contenidoCrudo === "" && (
               <div className="text-[#00aaff] text-sm italic text-center py-10">
-                <i className="fa-solid fa-plug fa-fade mr-2"></i> Analizando datos geográficos e inicializando Llama 3.2...
+                <i className="fa-solid fa-plug fa-fade mr-2"></i> Analizando datos geográficos e inicializando {nombreModelo}...
               </div>
             )}
 
