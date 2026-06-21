@@ -57,9 +57,9 @@ export default function ModalReporte({
 
   const API_URL =
     process.env.NEXT_PUBLIC_API_URL ||
-    (typeof window !== "undefined" && window.location.hostname === "localhost"
-      ? "http://localhost:8000"
-      : "http://34.63.158.31:8000"); // IP directa a tu clúster en producción
+    (typeof window !== "undefined" && window.location.hostname !== "localhost"
+      ? ""
+      : "http://localhost:8000");
 
   // Cargar el historial al abrir el modal
   const cargarHistorial = async () => {
