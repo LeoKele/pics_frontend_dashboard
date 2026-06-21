@@ -2,15 +2,26 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { Falla } from "../types";
 
+// 1. Agregamos la interfaz para decirle a TypeScript qué nos devuelve el backend
+interface MetricasBackend {
+  total: number;
+  baches: number;
+  grietas: number;
+  tierras: number;
+  verificadas: number;
+  pendientes: number;
+  falsos: number;
+}
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  detecciones: Falla[]; // detecciones del mapa (sin falsos positivos) — se siguen usando como fallback
+  detecciones: Falla[]; // Detecciones activas del mapa (para armar la tendencia semestral)
 }
 
 export default function ModalEstadisticas({ isOpen, onClose, detecciones = [] }: Props) {
-  // ─── FETCH PROPIO CON TODOS LOS ESTADOS (incluye falsos positivos) ───────────
-  const [todasLasDetecciones, setTodasLasDetecciones] = useState<Falla[]>([]);
+  // 2. Usamos el nuevo estado para las métricas
+  const [metricas, setMetricas] = useState<MetricasBackend | null>(null);
   const [cargando, setCargando] = useState(false);
 
   const API_URL =
@@ -19,49 +30,29 @@ export default function ModalEstadisticas({ isOpen, onClose, detecciones = [] }:
       ? ""
       : "http://localhost:8000");
 
+  // 3. Hacemos el fetch al nuevo endpoint de métricas
   useEffect(() => {
     if (!isOpen) return;
 
-    const fetchConFalsos = async () => {
+    const fetchMetricas = async () => {
       setCargando(true);
       try {
-        const res = await fetch(`${API_URL}/api/v1/detecciones?incluir_falsos=true`);
-        if (!res.ok) throw new Error("Error al obtener detecciones completas");
-        const data: Falla[] = await res.json();
-        setTodasLasDetecciones(data);
+        const res = await fetch(`${API_URL}/api/v1/metricas`);
+        if (!res.ok) throw new Error("Error al obtener métricas del servidor");
+        const data: MetricasBackend = await res.json();
+        setMetricas(data);
       } catch (err) {
-        console.error("ModalEstadisticas: error al cargar detecciones completas", err);
-        // Fallback: usar el array del mapa (sin falsos positivos)
-        setTodasLasDetecciones(detecciones);
+        console.error("ModalEstadisticas: error al cargar métricas", err);
       } finally {
         setCargando(false);
       }
     };
 
-    fetchConFalsos();
-  }, [isOpen]); // Se re-ejecuta cada vez que el modal se abre
-
-  // ─── ESTADÍSTICAS ────────────────────────────────────────────────────────────
-  // deteccionesReales = todo menos falsos positivos (para KPIs de daños)
-  const deteccionesReales = useMemo(() => {
-    return todasLasDetecciones.filter((d) => d.estado_auditoria !== "falso_positivo");
-  }, [todasLasDetecciones]);
-
-  const stats = useMemo(() => {
-    const total = deteccionesReales.length;
-    const baches = deteccionesReales.filter((d) => d.tipo_dano === "D40").length;
-    const grietas = deteccionesReales.filter((d) => d.tipo_dano === "D20").length;
-    const tierras = deteccionesReales.filter((d) => d.tipo_dano === "calle_tierra").length;
-
-    // Auditoría — sobre el universo completo (incluye falsos positivos)
-    const verificadas = todasLasDetecciones.filter((d) => d.estado_auditoria === "verificado").length;
-    const pendientes = todasLasDetecciones.filter((d) => d.estado_auditoria === "pendiente").length;
-    const falsos = todasLasDetecciones.filter((d) => d.estado_auditoria === "falso_positivo").length;
-
-    return { total, baches, grietas, tierras, verificadas, pendientes, falsos };
-  }, [todasLasDetecciones, deteccionesReales]);
+    fetchMetricas();
+  }, [isOpen]);
 
   // ─── TENDENCIA SEMESTRAL ─────────────────────────────────────────────────────
+  // Se sigue calculando con la prop 'detecciones' que ya nos pasa el componente padre
   const cronogramaSemestral = useMemo(() => {
     const nombresMeses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
     const resultado = [];
@@ -73,7 +64,7 @@ export default function ModalEstadisticas({ isOpen, onClose, detecciones = [] }:
       const mesIndex = fechaMes.getMonth();
       const nombre = `${nombresMeses[mesIndex]} ${año.toString().slice(-2)}`;
 
-      const conteo = deteccionesReales.filter((d) => {
+      const conteo = detecciones.filter((d) => {
         if (!d.fecha) return false;
         const fechaDeteccion = new Date(d.fecha);
         return (
@@ -91,12 +82,12 @@ export default function ModalEstadisticas({ isOpen, onClose, detecciones = [] }:
       ...r,
       porcentaje: (r.conteo / maxVal) * 100,
     }));
-  }, [deteccionesReales]);
+  }, [detecciones]);
 
   if (!isOpen) return null;
 
-  // Total para calcular porcentajes de auditoría (universo completo)
-  const totalAuditoria = todasLasDetecciones.length || 1;
+  // Evitamos división por cero en las barras de porcentaje
+  const totalAuditoria = metricas?.total || 1;
 
   return (
     <div className="fixed inset-0 bg-[#030712]/75 backdrop-blur-md z-[2000] flex justify-center items-center">
@@ -115,8 +106,8 @@ export default function ModalEstadisticas({ isOpen, onClose, detecciones = [] }:
 
           {/* LOADING STATE */}
           {cargando ? (
-            <div className="flex-1 flex items-center justify-center text-[#00aaff] text-sm gap-2">
-              <i className="fa-solid fa-circle-notch fa-spin"></i> Cargando métricas...
+            <div className="flex-1 flex items-center justify-center text-[#00aaff] text-sm gap-2 min-h-[300px]">
+              <i className="fa-solid fa-circle-notch fa-spin"></i> Cargando métricas consolidadas...
             </div>
           ) : (
             <>
@@ -124,19 +115,19 @@ export default function ModalEstadisticas({ isOpen, onClose, detecciones = [] }:
               <div className="grid grid-cols-4 gap-3">
                 <div className="bg-[#0d1527]/40 border border-white/5 rounded-xl p-3 text-center hover:border-[#00aaff]/40 hover:-translate-y-[1px] hover:shadow-[0_4px_12px_rgba(0,170,255,0.05)] transition-all duration-300 shadow-sm">
                   <span className="text-[0.65rem] text-gray-400 uppercase tracking-wider font-semibold">Total Hallazgos</span>
-                  <strong className="text-xl font-bold text-white block mt-1">{stats.total}</strong>
+                  <strong className="text-xl font-bold text-white block mt-1">{metricas?.total || 0}</strong>
                 </div>
                 <div className="bg-[#0d1527]/40 border border-white/5 rounded-xl p-3 text-center hover:border-[#00aaff]/40 hover:-translate-y-[1px] hover:shadow-[0_4px_12px_rgba(0,170,255,0.05)] transition-all duration-300 shadow-sm">
                   <span className="text-[0.65rem] text-gray-400 uppercase tracking-wider font-semibold">Baches (D40)</span>
-                  <strong className="text-xl font-bold text-[#00b8ff] block mt-1">{stats.baches}</strong>
+                  <strong className="text-xl font-bold text-[#00b8ff] block mt-1">{metricas?.baches || 0}</strong>
                 </div>
                 <div className="bg-[#0d1527]/40 border border-white/5 rounded-xl p-3 text-center hover:border-[#00aaff]/40 hover:-translate-y-[1px] hover:shadow-[0_4px_12px_rgba(0,170,255,0.05)] transition-all duration-300 shadow-sm">
                   <span className="text-[0.65rem] text-gray-400 uppercase tracking-wider font-semibold">Grietas (D20)</span>
-                  <strong className="text-xl font-bold text-[#a3f7ff] block mt-1">{stats.grietas}</strong>
+                  <strong className="text-xl font-bold text-[#a3f7ff] block mt-1">{metricas?.grietas || 0}</strong>
                 </div>
                 <div className="bg-[#0d1527]/40 border border-white/5 rounded-xl p-3 text-center hover:border-[#00aaff]/40 hover:-translate-y-[1px] hover:shadow-[0_4px_12px_rgba(0,170,255,0.05)] transition-all duration-300 shadow-sm">
                   <span className="text-[0.65rem] text-gray-400 uppercase tracking-wider font-semibold">Tramos de Tierra</span>
-                  <strong className="text-xl font-bold text-[#ffb86c] block mt-1">{stats.tierras}</strong>
+                  <strong className="text-xl font-bold text-[#ffb86c] block mt-1">{metricas?.tierras || 0}</strong>
                 </div>
               </div>
 
@@ -152,10 +143,12 @@ export default function ModalEstadisticas({ isOpen, onClose, detecciones = [] }:
                     <div className="flex flex-col gap-1.5">
                       <div className="flex justify-between text-xs font-semibold">
                         <span className="text-gray-400">Verificadas</span>
-                        <span className="text-[#00aaff]">{stats.verificadas} ({((stats.verificadas / totalAuditoria) * 100).toFixed(0)}%)</span>
+                        <span className="text-[#00aaff]">
+                          {metricas?.verificadas || 0} ({(((metricas?.verificadas || 0) / totalAuditoria) * 100).toFixed(0)}%)
+                        </span>
                       </div>
                       <div className="w-full h-2 bg-[#030912] rounded-full overflow-hidden">
-                        <div className="h-full bg-[#00aaff] rounded-full" style={{ width: `${(stats.verificadas / totalAuditoria) * 100}%` }}></div>
+                        <div className="h-full bg-[#00aaff] rounded-full" style={{ width: `${((metricas?.verificadas || 0) / totalAuditoria) * 100}%` }}></div>
                       </div>
                     </div>
 
@@ -163,10 +156,12 @@ export default function ModalEstadisticas({ isOpen, onClose, detecciones = [] }:
                     <div className="flex flex-col gap-1.5">
                       <div className="flex justify-between text-xs font-semibold">
                         <span className="text-gray-400">Pendientes</span>
-                        <span className="text-[#a3f7ff]">{stats.pendientes} ({((stats.pendientes / totalAuditoria) * 100).toFixed(0)}%)</span>
+                        <span className="text-[#a3f7ff]">
+                          {metricas?.pendientes || 0} ({(((metricas?.pendientes || 0) / totalAuditoria) * 100).toFixed(0)}%)
+                        </span>
                       </div>
                       <div className="w-full h-2 bg-[#030912] rounded-full overflow-hidden">
-                        <div className="h-full bg-[#a3f7ff] rounded-full" style={{ width: `${(stats.pendientes / totalAuditoria) * 100}%` }}></div>
+                        <div className="h-full bg-[#a3f7ff] rounded-full" style={{ width: `${((metricas?.pendientes || 0) / totalAuditoria) * 100}%` }}></div>
                       </div>
                     </div>
 
@@ -174,10 +169,12 @@ export default function ModalEstadisticas({ isOpen, onClose, detecciones = [] }:
                     <div className="flex flex-col gap-1.5">
                       <div className="flex justify-between text-xs font-semibold">
                         <span className="text-gray-400">Falsos Positivos</span>
-                        <span className="text-[#88b4d9]">{stats.falsos} ({((stats.falsos / totalAuditoria) * 100).toFixed(0)}%)</span>
+                        <span className="text-[#88b4d9]">
+                          {metricas?.falsos || 0} ({(((metricas?.falsos || 0) / totalAuditoria) * 100).toFixed(0)}%)
+                        </span>
                       </div>
                       <div className="w-full h-2 bg-[#030912] rounded-full overflow-hidden">
-                        <div className="h-full bg-[#88b4d9] rounded-full" style={{ width: `${(stats.falsos / totalAuditoria) * 100}%` }}></div>
+                        <div className="h-full bg-[#88b4d9] rounded-full" style={{ width: `${((metricas?.falsos || 0) / totalAuditoria) * 100}%` }}></div>
                       </div>
                     </div>
                   </div>
