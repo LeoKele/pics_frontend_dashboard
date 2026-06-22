@@ -58,14 +58,15 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
     "calle_tierra": true,
   });
 
-  // Filtrar detecciones en tiempo real (por confianza y tipo de daño)
+  // Filtrar detecciones en tiempo real (por confianza, tipo de daño y video seleccionado)
   const deteccionesFiltradas = useMemo(() => {
     return deteccionesTotales.filter((d: any) => {
       const pasaConfianza = d.confianza >= umbralConfianza;
       const pasaClase = filtrosClases[d.tipo_dano] !== false;
-      return pasaConfianza && pasaClase;
+      const pasaVideo = videoSeleccionado === null || d.video_id === videoSeleccionado;
+      return pasaConfianza && pasaClase && pasaVideo;
     });
-  }, [deteccionesTotales, umbralConfianza, filtrosClases]);
+  }, [deteccionesTotales, umbralConfianza, filtrosClases, videoSeleccionado]);
 
   // Sincronizar estadísticas cuando cambien las detecciones totales o el filtro
   useEffect(() => {
@@ -219,9 +220,19 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
             <span className="text-[0.6rem] text-gray-500 text-center">Filtrar detecciones por precisión</span>
           </div>
 
-          <h3 className="text-sm text-[#00aaff] mt-1 uppercase tracking-wide font-bold flex items-center drop-shadow-[0_0_5px_rgba(0,170,255,0.4)]">
-            <i className="fa-solid fa-clock-rotate-left mr-2"></i> Historial
-          </h3>
+          <div className="flex justify-between items-center mt-1">
+            <h3 className="text-sm text-[#00aaff] uppercase tracking-wide font-bold flex items-center drop-shadow-[0_0_5px_rgba(0,170,255,0.4)]">
+              <i className="fa-solid fa-clock-rotate-left mr-2"></i> Historial
+            </h3>
+            {videoSeleccionado !== null && (
+              <button 
+                onClick={volverGlobal}
+                className="text-[10px] text-[#00aaff] bg-[#00aaff]/10 border border-[#00aaff]/30 rounded px-1.5 py-0.5 hover:bg-[#00aaff]/20 cursor-pointer transition-all duration-300 font-semibold"
+              >
+                Ver Todo
+              </button>
+            )}
+          </div>
 
           <div className="flex-1 overflow-y-auto flex flex-col gap-2.5 custom-scrollbar pr-1">
             {listaVideos.length === 0 ? (
@@ -308,6 +319,7 @@ export default function Dashboard({ rol, onLogout }: DashboardProps) {
                onSeleccionarFalla={setFallaSeleccionada}
                filtrosClases={filtrosClases}
                setFiltrosClases={setFiltrosClases}
+               videoSeleccionado={videoSeleccionado}
              />
            </div>
 

@@ -40,7 +40,7 @@ const obtenerEstilosFalla = (tipo_dano: string) => {
   return { icono, color, nombre };
 };
 
-export default function MapaVial({ detecciones, trayectorias = {}, onSeleccionarVideo, onSeleccionarFalla, filtrosClases, setFiltrosClases }: any) {
+export default function MapaVial({ detecciones, trayectorias = {}, onSeleccionarVideo, onSeleccionarFalla, filtrosClases, setFiltrosClases, videoSeleccionado }: any) {
   const [limitesMoreno, setLimitesMoreno] = useState<any>(null);
   const [leyendaExpandida, setLeyendaExpandida] = useState(true);
 
@@ -122,12 +122,14 @@ export default function MapaVial({ detecciones, trayectorias = {}, onSeleccionar
         );
       })}
 
-      {Object.keys(trayectorias).map((vidId) => {
-        const puntosDeRuta = trayectorias[vidId] as any[];
-        if (puntosDeRuta && puntosDeRuta.length > 1) {
-          return (
-            <Polyline
-              key={`trayecto-${vidId}`}
+      {Object.keys(trayectorias)
+        .filter((vidId) => videoSeleccionado === null || Number(vidId) === videoSeleccionado)
+        .map((vidId) => {
+          const puntosDeRuta = trayectorias[vidId] as any[];
+          if (puntosDeRuta && puntosDeRuta.length > 1) {
+            return (
+              <Polyline
+                key={`trayecto-${vidId}`}
               positions={puntosDeRuta}
               pathOptions={{
                 color: '#33ccff',
